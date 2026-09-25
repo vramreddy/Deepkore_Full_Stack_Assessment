@@ -12,6 +12,7 @@ import TasksPage from './pages/TasksPage';
 import TaskDetailPage from './pages/TaskDetailPage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import AdminPanelPage from './pages/AdminPanelPage';
+import TimesheetPage from './pages/TimesheetPage';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
             <Route path="/projects/:id" element={<ProjectDetailPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/tasks/:id" element={<TaskDetailPage />} />
+            <Route path="/timesheet" element={<TimesheetPage />} />
             <Route path="/activities" element={<ActivitiesPage />} />
           </Route>
 

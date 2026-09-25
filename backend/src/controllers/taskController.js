@@ -503,6 +503,108 @@ const getAllTasks = async (req, res) => {
   }
 };
 
+/**
+ * POST /api/tasks/:id/worklogs
+ * Log hours worked on a task (Workday / Accenture Timesheet style)
+ */
+const addWorklog = async (req, res) => {
+  try {
+    const { hours, notes, date } = req.body;
+    const numHours = parseFloat(hours);
+
+    if (isNaN(numHours) || numHours <= 0 || numHours > 24) {
+      return res.status(400).json({ message: 'Hours must be a number between 0.25 and 24.' });
+    }
+
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found.' });
+    }
+
+    const isAssignee = task.assignee && task.assignee.toString() === req.user._id.toString();
+    const canManage = req.user.role === 'admin' || req.user.role === 'manager';
+
+    if (!isAssignee && !canManage) {
+      return res.status(403).json({ message: 'You can only log time on tasks assigned to you.' });
+    }
+
+    task.worklogs.push({
+      user: req.user._id,
+      hours: numHours,
+      notes: notes || '',
+      date: date ? new Date(date) : new Date(),
+    });
+
+    task.loggedHours = task.worklogs.reduce((sum, w) => sum + (w.hours || 0), 0);
+    await task.save();
+    await task.populate('worklogs.user', 'name email');
+
+    await logActivity({
+      userId: req.user._id,
+      action: 'time_logged',
+      entityType: 'task',
+      entityId: task._id,
+      entityName: task.title,
+      projectId: task.project,
+      details: `Logged ${numHours}h on "${task.title}": ${notes || 'No description'}`,
+    });
+
+    res.status(201).json({
+      message: `${numHours} hours logged successfully`,
+      loggedHours: task.loggedHours,
+      worklogs: task.worklogs,
+    });
+  } catch (err) {
+    console.error('Add worklog error:', err);
+    res.status(500).json({ message: 'Server error logging time.' });
+  }
+};
+
+/**
+ * GET /api/tasks/timesheet/summary
+ * Get weekly timesheet summary for current user
+ */
+const getTimesheetSummary = async (req, res) => {
+  try {
+    const tasks = await Task.find({
+      'worklogs.user': req.user._id,
+    })
+      .select('title project status loggedHours estimatedHours worklogs')
+      .populate('project', 'name');
+
+    let totalHours = 0;
+    const recentLogs = [];
+
+    tasks.forEach((t) => {
+      (t.worklogs || []).forEach((w) => {
+        if (w.user && w.user.toString() === req.user._id.toString()) {
+          totalHours += w.hours || 0;
+          recentLogs.push({
+            taskId: t._id,
+            taskTitle: t.title,
+            projectName: t.project?.name || 'General Project',
+            hours: w.hours,
+            date: w.date,
+            notes: w.notes,
+          });
+        }
+      });
+    });
+
+    recentLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    res.json({
+      totalHours: Math.round(totalHours * 10) / 10,
+      weeklyTarget: 40,
+      utilizationRate: Math.min(100, Math.round((totalHours / 40) * 100)),
+      recentLogs: recentLogs.slice(0, 15),
+    });
+  } catch (err) {
+    console.error('Timesheet summary error:', err);
+    res.status(500).json({ message: 'Server error fetching timesheet summary.' });
+  }
+};
+
 module.exports = {
   createTask,
   getTasks,
@@ -511,4 +613,6 @@ module.exports = {
   deleteTask,
   addComment,
   getAllTasks,
+  addWorklog,
+  getTimesheetSummary,
 };

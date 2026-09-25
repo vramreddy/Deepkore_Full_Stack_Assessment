@@ -27,6 +27,34 @@ const commentSchema = new mongoose.Schema(
   }
 );
 
+const worklogSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    hours: {
+      type: Number,
+      required: [true, 'Hours are required'],
+      min: [0.25, 'Minimum 0.25 hours (15m)'],
+      max: [24, 'Cannot log more than 24 hours per entry'],
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+    notes: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const taskSchema = new mongoose.Schema(
   {
     title: {
@@ -71,6 +99,17 @@ const taskSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'Due date is required'],
     },
+    estimatedHours: {
+      type: Number,
+      default: 8,
+      min: 0,
+    },
+    loggedHours: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    worklogs: [worklogSchema],
     comments: [commentSchema],
   },
   {

@@ -11,6 +11,7 @@ import {
   FiShield,
   FiBriefcase,
   FiUser,
+  FiClock,
 } from 'react-icons/fi';
 import { useState } from 'react';
 
@@ -42,6 +43,11 @@ function Sidebar() {
       to: '/tasks',
       icon: <FiCheckSquare />,
       label: isEmployee ? 'My Tasks Board' : 'Task Operations',
+    },
+    {
+      to: '/timesheet',
+      icon: <FiClock />,
+      label: 'My Time & Timesheet',
     },
     {
       to: '/activities',
