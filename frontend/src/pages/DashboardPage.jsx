@@ -55,9 +55,49 @@ function DashboardPage() {
   return (
     <div className="dashboard-page">
       <div className="page-header">
-        <h1>Dashboard</h1>
+        <h1>{user?.role === 'admin' ? 'System Overview' : user?.role === 'manager' ? 'Operations Dashboard' : 'Employee Workstation'}</h1>
         <p className="page-description">Welcome back, {user?.name}!</p>
       </div>
+
+      {/* Role-Specific Portal Banner */}
+      {user?.role === 'admin' && (
+        <div className="role-portal-banner banner-admin">
+          <div className="banner-left">
+            <span className="banner-badge">ADMINISTRATOR CONSOLE</span>
+            <h3>Enterprise Governance & Role Management</h3>
+            <p>You have root-level authorization. Configure user roles, supervise projects, and review sensitive audit logs.</p>
+          </div>
+          <Link to="/admin" className="btn btn-primary banner-action-btn">
+            Open Admin Panel →
+          </Link>
+        </div>
+      )}
+
+      {user?.role === 'manager' && (
+        <div className="role-portal-banner banner-manager">
+          <div className="banner-left">
+            <span className="banner-badge">MANAGER WORKSPACE</span>
+            <h3>Team Project Allocation & Workload Dashboard</h3>
+            <p>Create and assign tasks to project members, adjust priorities, and monitor deliverables against deadlines.</p>
+          </div>
+          <Link to="/projects" className="btn btn-primary banner-action-btn">
+            Manage Projects →
+          </Link>
+        </div>
+      )}
+
+      {user?.role === 'employee' && (
+        <div className="role-portal-banner banner-employee">
+          <div className="banner-left">
+            <span className="banner-badge">EMPLOYEE DESK</span>
+            <h3>My Operational Workstation & Tasks</h3>
+            <p>Focus on your assigned deliverables, advance task workflows from TODO to COMPLETED, and collaborate on comments.</p>
+          </div>
+          <Link to="/tasks" className="btn btn-primary banner-action-btn">
+            View My Tasks Board →
+          </Link>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="stats-grid">

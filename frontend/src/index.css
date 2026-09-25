@@ -1650,3 +1650,492 @@ h3 {
     align-items: center;
   }
 }
+
+/* ===============================
+   Google Mail & Auth Enhancements
+   =============================== */
+.btn-google-signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.25rem;
+}
+
+.btn-google-signin:hover {
+  background: #f9fafb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.25rem 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.auth-divider span {
+  padding: 0 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Demo chips */
+.demo-accounts-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.demo-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.demo-chips {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.demo-chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.demo-chip:hover {
+  transform: translateY(-1px);
+}
+
+.chip-admin:hover {
+  border-color: #a855f7;
+  color: #c084fc;
+}
+
+.chip-manager:hover {
+  border-color: #3b82f6;
+  color: #60a5fa;
+}
+
+.chip-employee:hover {
+  border-color: #10b981;
+  color: #34d399;
+}
+
+/* Google Modal */
+.google-modal {
+  max-width: 480px;
+  width: 90%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.google-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.google-modal-title h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.google-modal-desc {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0.75rem 0 1.25rem 0;
+}
+
+.google-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.google-account-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.google-account-item:hover {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.google-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.google-avatar-purple { background: #8b5cf6; }
+.google-avatar-blue { background: #3b82f6; }
+.google-avatar-green { background: #10b981; }
+
+.google-account-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.google-account-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.google-account-email {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.google-custom-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ===============================
+   Role-Based Portal Indicators & Banners
+   =============================== */
+.sidebar-portal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  margin-top: 0.5rem;
+}
+
+.portal-badge-admin {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.portal-badge-manager {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.portal-badge-employee {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sidebar-link-highlight {
+  background: rgba(168, 85, 247, 0.1) !important;
+  border-left: 3px solid #a855f7 !important;
+  color: #c084fc !important;
+}
+
+.sidebar-pill-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  background: #a855f7;
+  color: #fff;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* Dashboard Portal Banners */
+.role-portal-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.banner-admin {
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.3) 0%, rgba(30, 41, 59, 0.7) 100%);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.banner-manager {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(30, 41, 59, 0.7) 100%);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.banner-employee {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.3) 0%, rgba(30, 41, 59, 0.7) 100%);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.banner-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.4rem;
+}
+
+.banner-admin .banner-badge {
+  background: #a855f7;
+  color: white;
+}
+
+.banner-manager .banner-badge {
+  background: #3b82f6;
+  color: white;
+}
+
+.banner-employee .banner-badge {
+  background: #10b981;
+  color: white;
+}
+
+.role-portal-banner h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.15rem;
+}
+
+.role-portal-banner p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  max-width: 650px;
+}
+
+.banner-action-btn {
+  white-space: nowrap;
+}
+
+/* ===============================
+   Admin Panel Page Styles
+   =============================== */
+.panel-badge-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.admin-badge-pill {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+  overflow-x: auto;
+}
+
+.admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.admin-tab:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-tab.active {
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.user-profile-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: white;
+}
+
+.badge-you {
+  font-size: 0.7rem;
+  color: var(--primary);
+  font-weight: 700;
+  margin-left: 0.35rem;
+}
+
+.role-selector {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.role-selector:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-governance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .admin-governance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.role-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.role-breakdown-item {
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.role-header-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.role-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.role-count {
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.role-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.health-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.health-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.health-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+

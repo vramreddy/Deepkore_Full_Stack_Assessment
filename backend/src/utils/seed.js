@@ -17,8 +17,10 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smart-ops'
 
 const seedData = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
-    console.log('Connected to MongoDB for seeding...');
+    if (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(MONGO_URI);
+      console.log('Connected to MongoDB for seeding...');
+    }
 
     // Clear existing data
     await User.deleteMany({});
@@ -230,11 +232,20 @@ const seedData = async () => {
     console.log('  Employee: sneha@smartops.com    / employee123');
     console.log('  Employee: vikram@smartops.com   / employee123');
 
-    process.exit(0);
+    if (require.main === module) {
+      process.exit(0);
+    }
   } catch (err) {
     console.error('Seed error:', err);
-    process.exit(1);
+    if (require.main === module) {
+      process.exit(1);
+    }
+    throw err;
   }
 };
 
-seedData();
+if (require.main === module) {
+  seedData();
+}
+
+module.exports = seedData;

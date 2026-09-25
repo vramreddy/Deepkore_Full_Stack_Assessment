@@ -59,6 +59,18 @@ export function AuthProvider({ children }) {
     return userData;
   };
 
+  const loginWithGoogle = async (googleData) => {
+    const res = await api.post('/auth/google', googleData);
+    const { token: newToken, user: userData } = res.data;
+
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(newToken);
+    setUser(userData);
+
+    return userData;
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -72,6 +84,7 @@ export function AuthProvider({ children }) {
     loading,
     login,
     register,
+    loginWithGoogle,
     logout,
     isAuthenticated: !!token && !!user,
     isAdmin: user?.role === 'admin',
