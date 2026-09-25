@@ -246,7 +246,7 @@ cd smart-ops
 
 ### 2. Backend Setup
 ```bash
-cd server
+cd backend
 cp .env.example .env
 # Edit .env with your MongoDB connection string and JWT secret
 npm install
@@ -254,14 +254,14 @@ npm install
 
 ### 3. Frontend Setup
 ```bash
-cd client
+cd frontend
 cp .env.example .env
 npm install
 ```
 
 ### 4. Seed the Database (Optional)
 ```bash
-cd server
+cd backend
 npm run seed
 ```
 
@@ -277,12 +277,17 @@ This creates sample users, projects, and tasks. Test accounts:
 
 ### 5. Run the Application
 ```bash
+# Option A: From root directory
+npm run dev:backend    # Starts backend on http://localhost:5000
+npm run dev:frontend   # Starts frontend on http://localhost:5173
+
+# Option B: From individual folders
 # Terminal 1 - Backend
-cd server
+cd backend
 npm run dev
 
 # Terminal 2 - Frontend
-cd client
+cd frontend
 npm run dev
 ```
 
@@ -294,7 +299,11 @@ npm run dev
 ## Running Tests
 
 ```bash
-cd server
+# From root
+npm test
+
+# Or from backend directory
+cd backend
 npm test
 ```
 
@@ -311,14 +320,14 @@ Tests use `mongodb-memory-server` for an isolated in-memory database. Test categ
 
 ### Backend (Render / Railway)
 1. Create a new Web Service
-2. Set root directory to `server`
+2. Set root directory to `backend`
 3. Build command: `npm install`
 4. Start command: `npm start`
 5. Add environment variables (MONGO_URI, JWT_SECRET, CLIENT_URL)
 
 ### Frontend (Vercel / Render / Netlify)
 1. Create a new static site
-2. Set root directory to `client`
+2. Set root directory to `frontend`
 3. Build command: `npm run build`
 4. Publish directory: `dist`
 5. Add environment variable: `VITE_API_URL=<your-backend-url>/api`

@@ -1,0 +1,14 @@
+{
+  "name": "smartops-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Operations Management System - Production Full Stack Application",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "start:backend": "npm start --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "seed": "npm run seed --prefix backend",
+    "test": "npm test --prefix backend"
+  }
+}
