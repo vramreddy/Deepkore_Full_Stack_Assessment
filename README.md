@@ -92,38 +92,68 @@ A full-stack operations management system built with React.js, Node.js, Express.
 ## Architecture Overview
 
 ```
-┌─────────────────┐     HTTP/REST      ┌──────────────────┐     Mongoose     ┌──────────────┐
-│   React Client  │ ←───────────────→  │  Express Server  │ ←──────────────→ │   MongoDB    │
-│   (Vite SPA)    │                    │   (REST API)     │                  │   (Atlas)    │
-└─────────────────┘                    └──────────────────┘                  └──────────────┘
+┌─────────────────────────┐
+│     Operations Portal   │ (Port 5173 - Manager & Employee)
+│     (frontend/ Vite)    │ ────────┐
+└─────────────────────────┘         │
+                                    ▼
+┌─────────────────────────┐  HTTP/REST  ┌──────────────────┐  Mongoose  ┌──────────────┐
+│   Admin Command Center  │ ──────────→ │  Express Server  │ ─────────→ │   MongoDB    │
+│      (admin/ Vite)      │ (Port 5174) │ (backend/ :5000) │            │   Cluster    │
+└─────────────────────────┘             └──────────────────┘            └──────────────┘
 ```
 
-### Backend Structure
+### Directory Architecture
+
 ```
-server/
-├── src/
-│   ├── config/           # App config & DB connection
-│   ├── controllers/      # Business logic for each resource
-│   ├── middleware/        # Auth, validation middleware
-│   ├── models/           # Mongoose schemas (User, Project, Task, Activity)
-│   ├── routes/           # Express route definitions
-│   ├── utils/            # Helper functions (activity logger, seeder)
-│   ├── validators/       # express-validator rule sets
-│   ├── __tests__/        # Test suites
-│   └── index.js          # Express app entry point
+Deepkore-SmartOps/
+├── backend/                  # REST API Server & Database Models (Port 5000)
+│   ├── src/
+│   │   ├── config/           # Database connection & env config
+│   │   ├── controllers/      # Auth, Projects, Tasks, Activities controllers
+│   │   ├── middleware/       # JWT auth & RBAC authorization
+│   │   ├── models/           # User, Project, Task, Activity Mongoose models
+│   │   ├── routes/           # Express routes (/auth, /projects, /tasks, /activities)
+│   │   ├── utils/            # Activity logger, DB auto-seeder
+│   │   ├── validators/       # Request validation schemas
+│   │   └── index.js          # Express app entrypoint
+│   └── package.json
+│
+├── frontend/                 # Operations Portal for Managers & Employees (Port 5173)
+│   ├── src/
+│   │   ├── api/              # Axios HTTP client
+│   │   ├── components/       # Layout, Navbar, Sidebar, Modals
+│   │   ├── context/          # AuthContext with Google Sign-In
+│   │   ├── pages/            # Dashboard, Projects, Tasks, Timesheet
+│   │   └── index.css         # Dark glassmorphic design system
+│   └── package.json
+│
+├── admin/                    # Dedicated Executive Admin Command Center (Port 5174)
+│   ├── src/
+│   │   ├── api/              # Admin Axios client with bearer tokens
+│   │   ├── components/       # AdminNavbar, AdminSidebar, AdminLayout
+│   │   ├── context/          # AdminAuthContext (strict admin role enforcement)
+│   │   ├── pages/            # AdminDashboard, AdminUsers, AdminProjects, AdminAudit
+│   │   └── index.css         # Executive crimson & slate theme
+│   └── package.json
+│
+└── package.json              # Root orchestration scripts
 ```
 
-### Frontend Structure
-```
-client/
-├── src/
-│   ├── api/              # Axios instance with interceptors
-│   ├── components/       # Reusable UI components (Layout, Common)
-│   ├── context/          # React Context for auth state
-│   ├── pages/            # Page-level components
-│   ├── utils/            # Formatting and helper functions
-│   ├── App.jsx           # Root component with routes
-│   └── main.jsx          # Entry point
+### Running the Services
+
+```bash
+# Start Backend API Server (Port 5000)
+npm run dev:backend
+
+# Start Operations Frontend (Port 5173)
+npm run dev:frontend
+
+# Start Dedicated Admin Console (Port 5174)
+npm run dev:admin
+
+# Run Automated Test Suite (22/22 Passing)
+npm test
 ```
 
 ---
