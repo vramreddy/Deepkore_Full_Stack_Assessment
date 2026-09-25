@@ -27,14 +27,21 @@ app.use(
   })
 );
 
-// Rate limiting (skip in test environment)
-if (config.nodeEnv !== 'test') {
+// Rate limiting (strictly enforced in production, relaxed in development, disabled in tests)
+if (config.nodeEnv === 'production') {
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100,
+    max: 300,
     message: { message: 'Too many requests, please try again later.' },
   });
   app.use('/api/', limiter);
+} else if (config.nodeEnv === 'development') {
+  const devLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10000, // 10,000 requests for development & demo walkthroughs
+    message: { message: 'Too many requests, please try again later.' },
+  });
+  app.use('/api/', devLimiter);
 }
 
 // Body parsing
