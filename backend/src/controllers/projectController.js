@@ -8,7 +8,7 @@ const logActivity = require('../utils/logActivity');
  */
 const createProject = async (req, res) => {
   try {
-    const { name, description, startDate, deadline, status, teamMembers } = req.body;
+    const { name, description, startDate, deadline, status, teamMembers, initialTasks } = req.body;
 
     const project = await Project.create({
       name,
@@ -36,7 +36,57 @@ const createProject = async (req, res) => {
       details: `Created project "${project.name}"`,
     });
 
-    res.status(201).json({ message: 'Project created successfully', project });
+    // Create initial tasks assigned to employees if provided
+    const createdTasks = [];
+    if (Array.isArray(initialTasks) && initialTasks.length > 0) {
+      for (const t of initialTasks) {
+        if (!t.title || !t.title.trim()) continue;
+
+        let assigneeId = null;
+        if (t.assignee && t.assignee.toString().trim() !== '') {
+          const isMember = (teamMembers || []).some(
+            (m) => m.toString() === t.assignee.toString()
+          );
+          if (isMember) {
+            assigneeId = t.assignee;
+          }
+        }
+
+        const newTask = await Task.create({
+          title: t.title.trim(),
+          description: t.description ? t.description.trim() : '',
+          project: project._id,
+          assignee: assigneeId,
+          priority: ['low', 'medium', 'high', 'critical'].includes(t.priority)
+            ? t.priority
+            : 'medium',
+          status: 'todo',
+          dueDate: t.dueDate ? new Date(t.dueDate) : project.deadline,
+          estimatedHours: t.estimatedHours ? parseFloat(t.estimatedHours) : 8,
+        });
+
+        await newTask.populate('assignee', 'name email');
+        createdTasks.push(newTask);
+
+        await logActivity({
+          userId: req.user._id,
+          action: 'task_created',
+          entityType: 'task',
+          entityId: newTask._id,
+          entityName: newTask.title,
+          projectId: project._id,
+          details: `Manager created initial task "${newTask.title}"${
+            newTask.assignee ? ` assigned to ${newTask.assignee.name}` : ''
+          }`,
+        });
+      }
+    }
+
+    res.status(201).json({
+      message: 'Project created successfully',
+      project,
+      tasks: createdTasks,
+    });
   } catch (err) {
     if (process.env.NODE_ENV !== 'test') {
       console.error('Create project error:', err);

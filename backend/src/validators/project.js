@@ -30,6 +30,10 @@ const createProjectRules = [
     .optional()
     .isArray()
     .withMessage('Team members must be an array'),
+  body('initialTasks')
+    .optional()
+    .isArray()
+    .withMessage('Initial tasks must be an array'),
 ];
 
 const updateProjectRules = [

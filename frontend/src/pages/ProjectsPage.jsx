@@ -6,7 +6,7 @@ import { formatDate, formatStatus, getStatusColor } from '../utils/helpers';
 import Pagination from '../components/common/Pagination';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import toast from 'react-hot-toast';
-import { FiPlus, FiSearch, FiFilter, FiTrash2, FiEdit2 } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiFilter, FiTrash2, FiEdit2, FiFolder, FiCheckSquare, FiLayers, FiAlertCircle } from 'react-icons/fi';
 
 function ProjectsPage() {
   const { canManage, isAdmin } = useAuth();
@@ -35,6 +35,7 @@ function ProjectsPage() {
     status: 'planning',
     teamMembers: [],
   });
+  const [initialTasks, setInitialTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [formLoading, setFormLoading] = useState(false);
 
@@ -86,6 +87,7 @@ function ProjectsPage() {
       status: 'planning',
       teamMembers: [],
     });
+    setInitialTasks([]);
     fetchUsers();
     setShowForm(true);
   };
@@ -100,8 +102,37 @@ function ProjectsPage() {
       status: project.status,
       teamMembers: project.teamMembers?.map((m) => m._id) || [],
     });
+    setInitialTasks([]);
     fetchUsers();
     setShowForm(true);
+  };
+
+  const handleAddInitialTask = () => {
+    const defaultAssignee = formData.teamMembers.length > 0 ? formData.teamMembers[0] : '';
+    setInitialTasks((prev) => [
+      ...prev,
+      {
+        id: Date.now() + Math.random(),
+        title: '',
+        assignee: defaultAssignee,
+        priority: 'medium',
+        dueDate: formData.deadline || '',
+        description: '',
+        estimatedHours: 8,
+      },
+    ]);
+  };
+
+  const handleUpdateInitialTask = (index, field, value) => {
+    setInitialTasks((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleRemoveInitialTask = (index) => {
+    setInitialTasks((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleFormSubmit = async (e) => {
@@ -118,8 +149,29 @@ function ProjectsPage() {
         await api.put(`/projects/${editingProject._id}`, formData);
         toast.success('Project updated!');
       } else {
-        await api.post('/projects', formData);
-        toast.success('Project created!');
+        const validTasks = initialTasks
+          .filter((t) => t.title && t.title.trim())
+          .map((t) => ({
+            title: t.title.trim(),
+            description: t.description ? t.description.trim() : '',
+            assignee: t.assignee || null,
+            priority: t.priority || 'medium',
+            dueDate: t.dueDate || formData.deadline,
+            estimatedHours: t.estimatedHours ? Number(t.estimatedHours) : 8,
+          }));
+
+        const payload = {
+          ...formData,
+          initialTasks: validTasks,
+        };
+
+        const res = await api.post('/projects', payload);
+        const taskCount = res.data.tasks?.length || 0;
+        if (taskCount > 0) {
+          toast.success(`Project created with ${taskCount} assigned task${taskCount > 1 ? 's' : ''}!`);
+        } else {
+          toast.success('Project created successfully!');
+        }
       }
       setShowForm(false);
       fetchProjects();
@@ -145,9 +197,21 @@ function ProjectsPage() {
 
   const handleMemberToggle = (userId) => {
     setFormData((prev) => {
-      const members = prev.teamMembers.includes(userId)
+      const isSelected = prev.teamMembers.includes(userId);
+      const members = isSelected
         ? prev.teamMembers.filter((id) => id !== userId)
         : [...prev.teamMembers, userId];
+
+      // If a member was unselected, update any initial tasks assigned to them
+      if (isSelected) {
+        setInitialTasks((tPrev) =>
+          tPrev.map((task) =>
+            task.assignee === userId
+              ? { ...task, assignee: members.length > 0 ? members[0] : '' }
+              : task
+          )
+        );
+      }
       return { ...prev, teamMembers: members };
     });
   };
@@ -297,7 +361,7 @@ function ProjectsPage() {
       {/* Create/Edit Modal */}
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content modal-xl" onClick={(e) => e.stopPropagation()}>
             <h2>{editingProject ? 'Edit Project' : 'Create New Project'}</h2>
             <form onSubmit={handleFormSubmit}>
               <div className="form-group">
@@ -362,7 +426,7 @@ function ProjectsPage() {
               </div>
 
               <div className="form-group">
-                <label>Team Members</label>
+                <label>Assign Team Members (Employees & Managers)</label>
                 <div className="member-list">
                   {users
                     .filter((u) => u.role === 'employee' || u.role === 'manager')
@@ -381,6 +445,136 @@ function ProjectsPage() {
                 </div>
               </div>
 
+              {/* Manager Employee Task & Scope Assignment */}
+              {!editingProject && (
+                <div className="project-tasks-section">
+                  <div className="project-tasks-header">
+                    <div>
+                      <h3 className="section-title">
+                        <FiLayers className="section-icon" /> Assign Employee Tasks & Deliverables
+                      </h3>
+                      <p className="section-subtitle">
+                        Specify what each team member should do in this project immediately upon creation.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={handleAddInitialTask}
+                      disabled={formData.teamMembers.length === 0}
+                      title={formData.teamMembers.length === 0 ? 'Select team members above first' : 'Add a deliverable'}
+                    >
+                      <FiPlus /> Add Task / Deliverable
+                    </button>
+                  </div>
+
+                  {formData.teamMembers.length === 0 ? (
+                    <div className="task-assignment-notice">
+                      <FiAlertCircle />
+                      <span>Select team members above first to assign tasks and work scopes to them.</span>
+                    </div>
+                  ) : initialTasks.length === 0 ? (
+                    <div className="task-empty-hint">
+                      <p>
+                        No tasks assigned yet. Click <strong>"+ Add Task / Deliverable"</strong> to define employee assignments and instructions.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="initial-tasks-list">
+                      {initialTasks.map((task, idx) => (
+                        <div key={task.id || idx} className="initial-task-card">
+                          <div className="initial-task-card-header">
+                            <span className="task-number-badge">
+                              <FiCheckSquare /> Task #{idx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              className="btn-icon btn-icon-danger"
+                              onClick={() => handleRemoveInitialTask(idx)}
+                              title="Remove deliverable"
+                            >
+                              <FiTrash2 />
+                            </button>
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group flex-2">
+                              <label>Deliverable / Task Title *</label>
+                              <input
+                                type="text"
+                                placeholder="e.g. Design Dashboard Wireframes, Build Payment API..."
+                                value={task.title}
+                                onChange={(e) => handleUpdateInitialTask(idx, 'title', e.target.value)}
+                                required
+                              />
+                            </div>
+                            <div className="form-group flex-1">
+                              <label>Assign To Employee *</label>
+                              <select
+                                value={task.assignee}
+                                onChange={(e) => handleUpdateInitialTask(idx, 'assignee', e.target.value)}
+                              >
+                                <option value="">Select Employee...</option>
+                                {users
+                                  .filter((u) => formData.teamMembers.includes(u._id))
+                                  .map((u) => (
+                                    <option key={u._id} value={u._id}>
+                                      {u.name} ({u.role})
+                                    </option>
+                                  ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>Priority</label>
+                              <select
+                                value={task.priority}
+                                onChange={(e) => handleUpdateInitialTask(idx, 'priority', e.target.value)}
+                              >
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                              </select>
+                            </div>
+                            <div className="form-group">
+                              <label>Due Date</label>
+                              <input
+                                type="date"
+                                value={task.dueDate}
+                                onChange={(e) => handleUpdateInitialTask(idx, 'dueDate', e.target.value)}
+                              />
+                            </div>
+                            <div className="form-group">
+                              <label>Est. Hours</label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="500"
+                                value={task.estimatedHours}
+                                onChange={(e) => handleUpdateInitialTask(idx, 'estimatedHours', e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="form-group">
+                            <label>What the employee should do / Scope of Work</label>
+                            <textarea
+                              rows={2}
+                              placeholder="Detail the exact tasks, deliverables, expected output, and requirements for the employee..."
+                              value={task.description}
+                              onChange={(e) => handleUpdateInitialTask(idx, 'description', e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="form-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>
                   Cancel
@@ -390,6 +584,8 @@ function ProjectsPage() {
                     ? 'Saving...'
                     : editingProject
                     ? 'Update Project'
+                    : initialTasks.filter((t) => t.title.trim()).length > 0
+                    ? `Create Project & Assign ${initialTasks.filter((t) => t.title.trim()).length} Task(s)`
                     : 'Create Project'}
                 </button>
               </div>
