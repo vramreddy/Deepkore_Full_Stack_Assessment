@@ -8,23 +8,44 @@ import { FiSearch, FiCheckSquare } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 function TasksPage() {
-  const { user } = useAuth();
+  const { user, canManage } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
 
   const [filters, setFilters] = useState({
     search: '',
     status: '',
     priority: '',
+    assignee: '',
+    dueBefore: '',
+    dueAfter: '',
     page: 1,
     sortBy: 'createdAt',
     order: 'desc',
   });
 
   useEffect(() => {
+    if (canManage) {
+      api.get('/auth/users')
+        .then((res) => setUsers(res.data.users || []))
+        .catch((err) => console.error('Failed to load users:', err));
+    }
+  }, [canManage]);
+
+  useEffect(() => {
     fetchTasks();
-  }, [filters.page, filters.status, filters.priority, filters.sortBy, filters.order]);
+  }, [
+    filters.page,
+    filters.status,
+    filters.priority,
+    filters.assignee,
+    filters.dueBefore,
+    filters.dueAfter,
+    filters.sortBy,
+    filters.order,
+  ]);
 
   const fetchTasks = async () => {
     try {
@@ -33,6 +54,9 @@ function TasksPage() {
       if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
       if (filters.priority) params.priority = filters.priority;
+      if (filters.assignee) params.assignee = filters.assignee;
+      if (filters.dueBefore) params.dueBefore = filters.dueBefore;
+      if (filters.dueAfter) params.dueAfter = filters.dueAfter;
       params.page = filters.page;
       params.sortBy = filters.sortBy;
       params.order = filters.order;
@@ -51,6 +75,20 @@ function TasksPage() {
     e.preventDefault();
     setFilters({ ...filters, page: 1 });
     fetchTasks();
+  };
+
+  const handleResetFilters = () => {
+    setFilters({
+      search: '',
+      status: '',
+      priority: '',
+      assignee: '',
+      dueBefore: '',
+      dueAfter: '',
+      page: 1,
+      sortBy: 'createdAt',
+      order: 'desc',
+    });
   };
 
   return (
@@ -101,6 +139,43 @@ function TasksPage() {
             <option value="high">High</option>
             <option value="critical">Critical</option>
           </select>
+          {canManage && (
+            <select
+              value={filters.assignee}
+              onChange={(e) => setFilters({ ...filters, assignee: e.target.value, page: 1 })}
+            >
+              <option value="">All Employees</option>
+              {users.map((u) => (
+                <option key={u._id} value={u._id}>
+                  {u.name} ({u.role})
+                </option>
+              ))}
+            </select>
+          )}
+          <select
+            value={
+              filters.dueBefore && !filters.dueAfter
+                ? 'overdue'
+                : filters.dueAfter
+                ? 'future'
+                : ''
+            }
+            onChange={(e) => {
+              const val = e.target.value;
+              const today = new Date().toISOString().split('T')[0];
+              if (val === 'overdue') {
+                setFilters({ ...filters, dueBefore: today, dueAfter: '', page: 1 });
+              } else if (val === 'future') {
+                setFilters({ ...filters, dueBefore: '', dueAfter: today, page: 1 });
+              } else {
+                setFilters({ ...filters, dueBefore: '', dueAfter: '', page: 1 });
+              }
+            }}
+          >
+            <option value="">All Due Dates</option>
+            <option value="overdue">Overdue Tasks</option>
+            <option value="future">Upcoming Tasks</option>
+          </select>
           <select
             value={`${filters.sortBy}-${filters.order}`}
             onChange={(e) => {
@@ -115,6 +190,16 @@ function TasksPage() {
             <option value="priority-desc">Priority (Highest)</option>
             <option value="priority-asc">Priority (Lowest)</option>
           </select>
+          {(filters.search || filters.status || filters.priority || filters.assignee || filters.dueBefore || filters.dueAfter) && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleResetFilters}
+              style={{ fontSize: '0.825rem', padding: '0.4rem 0.75rem' }}
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
 

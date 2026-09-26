@@ -75,8 +75,11 @@ function LoginPage() {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-header">
-          <h1 className="auth-logo">SmartOps</h1>
-          <p className="auth-subtitle">Operations Management System</p>
+          <h1 className="auth-logo">
+            <img src="/deepkore-logo.jpg" alt="Deepkore" className="auth-logo-icon" />
+            Deepkore
+          </h1>
+          <p className="auth-subtitle">Smart Operations Management System</p>
         </div>
 
         <div className="auth-card">

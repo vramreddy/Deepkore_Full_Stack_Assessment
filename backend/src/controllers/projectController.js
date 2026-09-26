@@ -112,6 +112,8 @@ const getProjects = async (req, res) => {
       search,
       sortBy = 'createdAt',
       order = 'desc',
+      deadlineBefore,
+      deadlineAfter,
     } = req.query;
 
     const pageNum = Math.max(1, parseInt(page));
@@ -123,6 +125,12 @@ const getProjects = async (req, res) => {
 
     if (status) {
       filter.status = status;
+    }
+
+    if (deadlineBefore || deadlineAfter) {
+      filter.deadline = {};
+      if (deadlineBefore) filter.deadline.$lte = new Date(deadlineBefore);
+      if (deadlineAfter) filter.deadline.$gte = new Date(deadlineAfter);
     }
 
     if (search) {

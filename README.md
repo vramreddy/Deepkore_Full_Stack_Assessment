@@ -1,4 +1,4 @@
-# SmartOps - Smart Operations Management System
+# Deepkore - Smart Operations Management Platform
 
 A full-stack operations management system built with React.js, Node.js, Express.js, and MongoDB. Companies can manage projects, assign tasks, track progress, and monitor team workload with role-based access control.
 
@@ -298,12 +298,12 @@ npm run seed
 This creates sample users, projects, and tasks. Test accounts:
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@smartops.com | admin123 |
-| Manager | rahul@smartops.com | manager123 |
-| Manager | priya@smartops.com | manager123 |
-| Employee | amit@smartops.com | employee123 |
-| Employee | sneha@smartops.com | employee123 |
-| Employee | vikram@smartops.com | employee123 |
+| Admin | admin@deepkore.com | admin123 |
+| Manager | rahul@deepkore.com | manager123 |
+| Manager | priya@deepkore.com | manager123 |
+| Employee | amit@deepkore.com | employee123 |
+| Employee | sneha@deepkore.com | employee123 |
+| Employee | vikram@deepkore.com | employee123 |
 
 ### 5. Run the Application
 ```bash

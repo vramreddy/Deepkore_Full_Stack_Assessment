@@ -7,20 +7,20 @@ const connectDB = async () => {
     console.log(`MongoDB connected: ${conn.connection.host}`);
   } catch (err) {
     if (config.nodeEnv === 'development') {
-      console.log('\n[SmartOps] External MongoDB not detected. Starting embedded in-memory MongoDB for local dev...');
+      console.log('\n[Deepkore] External MongoDB not detected. Starting embedded in-memory MongoDB for local dev...');
       try {
         const { MongoMemoryServer } = require('mongodb-memory-server');
         const mongod = await MongoMemoryServer.create();
         const uri = mongod.getUri();
         const conn = await mongoose.connect(uri);
-        console.log(`[SmartOps] Embedded MongoDB running and connected: ${conn.connection.host}`);
+        console.log(`[Deepkore] Embedded MongoDB running and connected: ${conn.connection.host}`);
 
         // Seed with test data
         const seedData = require('../utils/seed');
         await seedData();
         return;
       } catch (memErr) {
-        console.error('[SmartOps] In-memory MongoDB failed to start:', memErr.message);
+        console.error('[Deepkore] In-memory MongoDB failed to start:', memErr.message);
       }
     }
     console.error('MongoDB connection error:', err.message);

@@ -21,6 +21,8 @@ function ProjectsPage() {
   const [filters, setFilters] = useState({
     search: '',
     status: '',
+    deadlineBefore: '',
+    deadlineAfter: '',
     page: 1,
     sortBy: 'createdAt',
     order: 'desc',
@@ -41,7 +43,7 @@ function ProjectsPage() {
 
   useEffect(() => {
     fetchProjects();
-  }, [filters.page, filters.status, filters.sortBy, filters.order]);
+  }, [filters.page, filters.status, filters.deadlineBefore, filters.deadlineAfter, filters.sortBy, filters.order]);
 
   const fetchProjects = async () => {
     try {
@@ -261,6 +263,31 @@ function ProjectsPage() {
           </select>
 
           <select
+            value={
+              filters.deadlineBefore && !filters.deadlineAfter
+                ? 'past_deadline'
+                : filters.deadlineAfter
+                ? 'upcoming_deadline'
+                : ''
+            }
+            onChange={(e) => {
+              const val = e.target.value;
+              const today = new Date().toISOString().split('T')[0];
+              if (val === 'past_deadline') {
+                setFilters({ ...filters, deadlineBefore: today, deadlineAfter: '', page: 1 });
+              } else if (val === 'upcoming_deadline') {
+                setFilters({ ...filters, deadlineBefore: '', deadlineAfter: today, page: 1 });
+              } else {
+                setFilters({ ...filters, deadlineBefore: '', deadlineAfter: '', page: 1 });
+              }
+            }}
+          >
+            <option value="">All Deadlines</option>
+            <option value="upcoming_deadline">Upcoming Deadlines</option>
+            <option value="past_deadline">Past Deadlines</option>
+          </select>
+
+          <select
             value={`${filters.sortBy}-${filters.order}`}
             onChange={(e) => {
               const [sortBy, order] = e.target.value.split('-');
@@ -274,6 +301,27 @@ function ProjectsPage() {
             <option value="deadline-asc">Deadline (Earliest)</option>
             <option value="deadline-desc">Deadline (Latest)</option>
           </select>
+
+          {(filters.search || filters.status || filters.deadlineBefore || filters.deadlineAfter) && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() =>
+                setFilters({
+                  search: '',
+                  status: '',
+                  deadlineBefore: '',
+                  deadlineAfter: '',
+                  page: 1,
+                  sortBy: 'createdAt',
+                  order: 'desc',
+                })
+              }
+              style={{ fontSize: '0.825rem', padding: '0.4rem 0.75rem' }}
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
 

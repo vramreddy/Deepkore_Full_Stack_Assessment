@@ -23,6 +23,7 @@ function ProjectDetailPage() {
     search: '',
     status: '',
     priority: '',
+    assignee: '',
     page: 1,
   });
 
@@ -45,7 +46,7 @@ function ProjectDetailPage() {
 
   useEffect(() => {
     fetchTasks();
-  }, [id, taskFilters.page, taskFilters.status, taskFilters.priority]);
+  }, [id, taskFilters.page, taskFilters.status, taskFilters.priority, taskFilters.assignee]);
 
   const fetchProject = async () => {
     try {
@@ -64,6 +65,7 @@ function ProjectDetailPage() {
       if (taskFilters.search) params.search = taskFilters.search;
       if (taskFilters.status) params.status = taskFilters.status;
       if (taskFilters.priority) params.priority = taskFilters.priority;
+      if (taskFilters.assignee) params.assignee = taskFilters.assignee;
       params.page = taskFilters.page;
 
       const res = await api.get(`/projects/${id}/tasks`, { params });
@@ -253,6 +255,19 @@ function ProjectDetailPage() {
             <option value="high">High</option>
             <option value="critical">Critical</option>
           </select>
+          {project?.teamMembers?.length > 0 && (
+            <select
+              value={taskFilters.assignee}
+              onChange={(e) => setTaskFilters({ ...taskFilters, assignee: e.target.value, page: 1 })}
+            >
+              <option value="">All Assignees</option>
+              {project.teamMembers.map((m) => (
+                <option key={m._id} value={m._id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          )}
         </div>
       </div>
 

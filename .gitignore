@@ -6,6 +6,7 @@ node_modules/
 .env.production.local
 dist/
 frontend/dist/
+admin/dist/
 client/dist/
 build/
 .DS_Store
