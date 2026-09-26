@@ -1446,20 +1446,178 @@ button, input, select, textarea {
   -webkit-overflow-scrolling: touch;
 }
 
-/* --- Breakpoint: Laptops & Large Tablets Landscape (max-width: 1200px) --- */
-@media (max-width: 1200px) {
+/* ============================================================
+   EXTRA-LARGE MONITORS & 4K (min-width: 1600px)
+   ============================================================ */
+@media (min-width: 1600px) {
   .admin-main-viewport {
-    padding: 1.75rem 1.5rem;
+    padding: 2rem 3rem;
+  }
+
+  .admin-content-view {
+    max-width: 1560px;
+    margin: 0 auto;
+  }
+
+  .admin-metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .admin-split-grid {
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* ============================================================
+   LARGE DEVICES: Laptops & Standard Desktops (1025px - 1599px)
+   Tailored for common 1366x768, 1440x900, 1536x864, 1920x1080@125%
+   ============================================================ */
+@media (min-width: 1025px) and (max-width: 1599px) {
+  .admin-navbar {
+    height: 58px;
+    padding: 0 1.5rem;
+  }
+
+  .admin-sidebar {
+    width: 240px;
+    padding: 1.25rem 1rem;
+  }
+
+  .sidebar-section-heading {
+    font-size: 0.65rem;
+    margin-bottom: 0.65rem;
+    padding-left: 0.4rem;
+  }
+
+  .admin-nav-list {
+    gap: 0.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-nav-item {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.85rem;
+    gap: 0.75rem;
+  }
+
+  .admin-main-viewport {
+    padding: 1.25rem 1.75rem;
+  }
+
+  .admin-content-view {
+    max-width: 1380px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .admin-page-header {
+    margin-bottom: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .admin-title {
+    font-size: 1.6rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .admin-subtitle {
+    font-size: 0.84rem;
+    max-width: 680px;
+  }
+
+  .admin-header-actions .admin-btn {
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+  }
+
+  /* 4-column metrics grid optimized to fit laptop screens without vertical blowout */
+  .admin-metrics-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .admin-metric-card {
+    padding: 1rem 1.15rem;
+    gap: 0.85rem;
+  }
+
+  .metric-icon-wrap {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+    border-radius: var(--admin-radius-sm);
+  }
+
+  .metric-label {
+    font-size: 0.72rem;
+  }
+
+  .metric-value {
+    font-size: 1.55rem;
+  }
+
+  .metric-subtext {
+    font-size: 0.7rem;
+  }
+
+  .admin-split-grid {
+    grid-template-columns: 1.5fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .admin-panel-card {
+    padding: 1.25rem 1.4rem;
+  }
+
+  .admin-filter-bar {
+    margin-bottom: 1.25rem;
+    padding: 0.65rem 0.85rem;
+    gap: 0.85rem;
+  }
+
+  .admin-filter-bar .search-box input,
+  .admin-filter-bar .filter-group select {
+    font-size: 0.85rem;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .modal-content {
+    max-width: 520px;
+    padding: 1.5rem;
+  }
+}
+
+/* ============================================================
+   MEDIUM DEVICES & TABLETS (769px - 1024px)
+   ============================================================ */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .admin-main-viewport {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .admin-content-view {
+    max-width: 100%;
   }
 
   .admin-metrics-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
   }
 
-  .admin-dash-grid {
+  .admin-split-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 
   .admin-navbar-left {
