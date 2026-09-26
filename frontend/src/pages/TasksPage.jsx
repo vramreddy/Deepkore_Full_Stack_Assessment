@@ -1,30 +1,77 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatStatus, getStatusColor, getPriorityColor, isOverdue } from '../utils/helpers';
 import Pagination from '../components/common/Pagination';
-import { FiSearch, FiCheckSquare } from 'react-icons/fi';
+import { FiSearch, FiCheckSquare, FiX, FiAlertTriangle, FiClock } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 function TasksPage() {
   const { user, canManage } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tasks, setTasks] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
 
-  const [filters, setFilters] = useState({
-    search: '',
-    status: '',
-    priority: '',
-    assignee: '',
-    dueBefore: '',
-    dueAfter: '',
-    page: 1,
-    sortBy: 'createdAt',
-    order: 'desc',
+  const [filters, setFilters] = useState(() => {
+    const statusParam = searchParams.get('status') || '';
+    const filterParam = searchParams.get('filter') || '';
+    const today = new Date().toISOString().split('T')[0];
+
+    let initialDueBefore = '';
+    let initialStatus = statusParam;
+
+    if (filterParam === 'overdue' || statusParam === 'overdue') {
+      initialDueBefore = today;
+      initialStatus = 'overdue';
+    } else if (filterParam === 'pending' || statusParam === 'pending') {
+      initialStatus = 'pending';
+    }
+
+    return {
+      search: searchParams.get('search') || '',
+      status: initialStatus,
+      priority: searchParams.get('priority') || '',
+      assignee: searchParams.get('assignee') || '',
+      dueBefore: initialDueBefore,
+      dueAfter: '',
+      page: 1,
+      sortBy: 'createdAt',
+      order: 'desc',
+    };
   });
+
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    const filterParam = searchParams.get('filter');
+    const today = new Date().toISOString().split('T')[0];
+
+    if (filterParam === 'overdue' || statusParam === 'overdue') {
+      setFilters((prev) => ({
+        ...prev,
+        status: 'overdue',
+        dueBefore: today,
+        dueAfter: '',
+        page: 1,
+      }));
+    } else if (filterParam === 'pending' || statusParam === 'pending') {
+      setFilters((prev) => ({
+        ...prev,
+        status: 'pending',
+        dueBefore: '',
+        page: 1,
+      }));
+    } else if (statusParam !== null) {
+      setFilters((prev) => ({
+        ...prev,
+        status: statusParam,
+        dueBefore: '',
+        page: 1,
+      }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (canManage) {
@@ -78,6 +125,7 @@ function TasksPage() {
   };
 
   const handleResetFilters = () => {
+    setSearchParams({});
     setFilters({
       search: '',
       status: '',
@@ -121,9 +169,21 @@ function TasksPage() {
         <div className="filter-controls">
           <select
             value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
+            onChange={(e) => {
+              const val = e.target.value;
+              const today = new Date().toISOString().split('T')[0];
+              if (val === 'overdue') {
+                setFilters({ ...filters, status: 'overdue', dueBefore: today, dueAfter: '', page: 1 });
+              } else if (val === 'pending') {
+                setFilters({ ...filters, status: 'pending', dueBefore: '', dueAfter: '', page: 1 });
+              } else {
+                setFilters({ ...filters, status: val, dueBefore: '', page: 1 });
+              }
+            }}
           >
             <option value="">All Statuses</option>
+            <option value="pending">Pending Tasks (Incomplete)</option>
+            <option value="overdue">Overdue Tasks</option>
             <option value="todo">To Do</option>
             <option value="in_progress">In Progress</option>
             <option value="review">Review</option>
@@ -154,7 +214,7 @@ function TasksPage() {
           )}
           <select
             value={
-              filters.dueBefore && !filters.dueAfter
+              filters.status === 'overdue' || (filters.dueBefore && !filters.dueAfter)
                 ? 'overdue'
                 : filters.dueAfter
                 ? 'future'
@@ -164,7 +224,7 @@ function TasksPage() {
               const val = e.target.value;
               const today = new Date().toISOString().split('T')[0];
               if (val === 'overdue') {
-                setFilters({ ...filters, dueBefore: today, dueAfter: '', page: 1 });
+                setFilters({ ...filters, status: 'overdue', dueBefore: today, dueAfter: '', page: 1 });
               } else if (val === 'future') {
                 setFilters({ ...filters, dueBefore: '', dueAfter: today, page: 1 });
               } else {
@@ -202,6 +262,28 @@ function TasksPage() {
           )}
         </div>
       </div>
+
+      {/* Active Quick Filter Notification */}
+      {(filters.status === 'pending' || filters.status === 'overdue' || filters.dueBefore) && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(234, 179, 8, 0.1)', border: '1px solid rgba(234, 179, 8, 0.25)', borderRadius: '8px', padding: '0.65rem 1rem', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.875rem' }}>
+            {filters.status === 'overdue' ? <FiAlertTriangle style={{ color: '#ef4444' }} /> : <FiClock style={{ color: '#eab308' }} />}
+            <span style={{ color: 'var(--text-muted)' }}>Quick Filter Active:</span>
+            <span className={`badge ${filters.status === 'overdue' ? 'badge-danger' : 'badge-warning'}`}>
+              {filters.status === 'overdue' ? 'Overdue Tasks' : 'Pending Tasks (TODO, IN PROGRESS, REVIEW)'}
+            </span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>({pagination?.total ?? tasks.length} task{pagination?.total !== 1 ? 's' : ''} found)</span>
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleResetFilters}
+            style={{ fontSize: '0.8rem', padding: '0.25rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <FiX size={14} /> Show All Tasks
+          </button>
+        </div>
+      )}
 
       {/* Tasks List */}
       {loading ? (

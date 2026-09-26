@@ -271,8 +271,8 @@ function TimesheetPage() {
 
       {/* Log Time Modal */}
       {showLogModal && (
-        <div className="modal-backdrop">
-          <div className="modal-content">
+        <div className="modal-overlay" onClick={() => setShowLogModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Log Work Hours (Workday Time Tracker)</h3>
               <button

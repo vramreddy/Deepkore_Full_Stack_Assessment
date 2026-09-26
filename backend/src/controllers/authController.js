@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Project = require('../models/Project');
 const config = require('../config');
 
 // Helper to generate JWT token
@@ -143,25 +144,97 @@ const logActivity = require('../utils/logActivity');
 
 const googleAuth = async (req, res) => {
   try {
-    const { email, name, role = 'employee' } = req.body;
+    const { email, name, role = 'employee', adminKey } = req.body;
 
     if (!email || !email.includes('@')) {
       return res.status(400).json({ message: 'Valid Google email is required.' });
     }
 
     const cleanEmail = email.toLowerCase().trim();
+    const prefix = cleanEmail.split('@')[0];
+
+    // Check if user exists by exact email
     let user = await User.findOne({ email: cleanEmail });
+
+    // If not found, check known domain aliases (e.g., smartops.com, deepkore.com) or username matching
+    if (!user) {
+      const aliasCandidates = [
+        `${prefix}@smartops.com`,
+        `${prefix}@deepkore.com`,
+        `${prefix}@gmail.com`,
+      ];
+      user = await User.findOne({ email: { $in: aliasCandidates } });
+    }
+
+    if (!user) {
+      // Also search by prefix if username is common (e.g. rahul, amit, priya, admin)
+      const basePrefix = prefix.split(/[._-]/)[0];
+      user = await User.findOne({
+        $or: [
+          { email: new RegExp(`^${basePrefix}@`, 'i') },
+          { name: new RegExp(name || basePrefix, 'i') },
+        ],
+      });
+    }
+
+    const isRequestingAdmin = role === 'admin';
+    const isPreAuthorizedAdmin =
+      cleanEmail === 'admin@smartops.com' || cleanEmail === 'admin@deepkore.com';
+    const hasValidAdminKey =
+      adminKey && adminKey.trim() === config.adminClearanceKey;
+
+    // Security Verification: If attempting to authenticate into Admin Console
+    if (isRequestingAdmin) {
+      const isAlreadyAdmin = user && user.role === 'admin';
+
+      if (!isAlreadyAdmin && !isPreAuthorizedAdmin && !hasValidAdminKey) {
+        return res.status(403).json({
+          message:
+            'Administrative clearance required. Please provide a valid Admin Clearance Key to verify and provision Administrator privileges.',
+          requiresAdminKey: true,
+        });
+      }
+
+      // If authorized with valid key or pre-cleared admin email, ensure admin role
+      if (user && (hasValidAdminKey || isPreAuthorizedAdmin)) {
+        if (user.role !== 'admin') {
+          user.role = 'admin';
+          await user.save();
+        }
+      }
+    }
+
     let isNewUser = false;
 
     if (!user) {
       isNewUser = true;
       const randomPassword = crypto.randomBytes(16).toString('hex') + 'A1!';
+
+      let userRole = 'employee';
+      if (isRequestingAdmin && (isPreAuthorizedAdmin || hasValidAdminKey)) {
+        userRole = 'admin';
+      } else if (role === 'manager') {
+        userRole = 'manager';
+      }
+
       user = await User.create({
-        name: name || cleanEmail.split('@')[0],
+        name: name || prefix.replace(/[._]/g, ' ').replace(/(^\w|\s\w)/g, (m) => m.toUpperCase()),
         email: cleanEmail,
         password: randomPassword,
-        role: ['admin', 'manager', 'employee'].includes(role) ? role : 'employee',
+        role: userRole,
       });
+
+      // For new non-admin users, assign them to active projects so they have a populated dashboard and tasks
+      if (userRole !== 'admin') {
+        try {
+          await Project.updateMany(
+            { status: { $in: ['active', 'planning'] } },
+            { $addToSet: { teamMembers: user._id } }
+          );
+        } catch (projErr) {
+          console.error('Auto-assigning new Google user to demo projects failed:', projErr.message);
+        }
+      }
 
       await logActivity({
         userId: user._id,
@@ -170,7 +243,7 @@ const googleAuth = async (req, res) => {
         entityId: user._id,
         entityName: user.name,
         newValue: user.role,
-        details: `User registered via Google Mail: ${cleanEmail}`,
+        details: `User registered via Google Mail: ${cleanEmail} (Role: ${userRole})`,
       });
     }
 

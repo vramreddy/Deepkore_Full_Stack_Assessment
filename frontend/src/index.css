@@ -41,6 +41,12 @@
   /* Border */
   --border-color: #1e3050;
 
+  /* Theme Aliases */
+  --surface: #111d3a;
+  --border: #1e3050;
+  --text: #f8fafc;
+  --bg: #0A1128;
+
   /* Deepkore Gradients */
   --gradient-brand: linear-gradient(135deg, #248aff 0%, #00d26a 100%);
   --gradient-brand-horizontal: linear-gradient(90deg, #248aff 0%, #00d26a 100%);
@@ -1553,31 +1559,99 @@ h3 {
 /* ===============================
    Modals
    =============================== */
-.modal-overlay {
+.modal-overlay,
+.modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 9, 24, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 500;
-  padding: 1rem;
+  z-index: 9999;
+  padding: 1.25rem;
+  overflow-y: auto;
+  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 16px);
   padding: 1.75rem;
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2,
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.modal-close:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  transform: scale(1.05);
 }
 
 .modal-large {
@@ -2169,35 +2243,39 @@ h3 {
 
 /* Google Modal */
 .google-modal {
-  max-width: 480px;
-  width: 90%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem;
+  max-width: 500px;
+  width: 100%;
+  background: #111d3a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
 }
 
 .google-modal-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
 .google-modal-title h3 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .google-modal-desc {
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin: 0.75rem 0 1.25rem 0;
+  font-size: 0.88rem;
+  margin: 0.5rem 0 1.25rem 0;
+  line-height: 1.45;
 }
 
 .google-account-list {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.65rem;
   margin-bottom: 1.25rem;
 }
 
@@ -2205,58 +2283,67 @@ h3 {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.75rem;
-  border-radius: 8px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .google-account-item:hover {
   border-color: var(--primary);
-  background: rgba(36, 138, 255, 0.05);
+  background: rgba(36, 138, 255, 0.08);
+  transform: translateY(-1px);
 }
 
 .google-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #fff;
   flex-shrink: 0;
 }
 
-.google-avatar-purple { background: #8b5cf6; }
-.google-avatar-blue { background: #3b82f6; }
-.google-avatar-green { background: #10b981; }
+.google-avatar-purple { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+.google-avatar-blue { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+.google-avatar-green { background: linear-gradient(135deg, #059669, #10b981); }
 
 .google-account-info {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
 }
 
 .google-account-name {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: var(--text);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .google-account-email {
   font-size: 0.75rem;
   color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .google-custom-form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
 /* ===============================
@@ -2774,5 +2861,132 @@ h3 {
 .flex-1 {
   flex: 1;
 }
+
+/* ===============================
+   Interactive Stat Cards & Drilldown Modal
+   =============================== */
+.stat-card-clickable {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.8rem;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  overflow: hidden;
+}
+
+.stat-card-clickable::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.stat-card-clickable.blue::before { background: var(--primary); }
+.stat-card-clickable.green::before { background: var(--success); }
+.stat-card-clickable.yellow::before { background: var(--warning); }
+.stat-card-clickable.red::before { background: var(--danger); }
+
+.stat-card-clickable:hover {
+  transform: translateY(-4px);
+  border-color: rgba(36, 138, 255, 0.45);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.45), 0 0 20px rgba(36, 138, 255, 0.12);
+}
+
+.stat-card-main {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-card-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-card-clickable:hover .stat-card-badge {
+  color: var(--primary-light);
+  background: rgba(36, 138, 255, 0.15);
+}
+
+.stat-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.stat-card-link-action {
+  color: var(--primary-light);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.stat-card-clickable:hover .stat-card-link-action {
+  color: #60a5fa;
+  transform: translateX(2px);
+}
+
+/* Drilldown Modal */
+.drilldown-item-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+}
+
+.drilldown-item-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(36, 138, 255, 0.35);
+  transform: translateX(3px);
+}
+
+.drilldown-item-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.drilldown-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
 
 

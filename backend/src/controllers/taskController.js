@@ -118,7 +118,14 @@ const getTasks = async (req, res) => {
     // Build filter
     const filter = { project: projectId };
 
-    if (status) filter.status = status;
+    if (status === 'pending' || req.query.filter === 'pending') {
+      filter.status = { $in: ['todo', 'in_progress', 'review'] };
+    } else if (status === 'overdue' || req.query.filter === 'overdue' || req.query.overdue === 'true') {
+      filter.status = { $ne: 'completed' };
+      filter.dueDate = { $lt: new Date() };
+    } else if (status) {
+      filter.status = status;
+    }
     if (priority) filter.priority = priority;
     if (assignee) filter.assignee = assignee;
 
@@ -446,7 +453,14 @@ const getAllTasks = async (req, res) => {
 
     const filter = {};
 
-    if (status) filter.status = status;
+    if (status === 'pending' || req.query.filter === 'pending') {
+      filter.status = { $in: ['todo', 'in_progress', 'review'] };
+    } else if (status === 'overdue' || req.query.filter === 'overdue' || req.query.overdue === 'true') {
+      filter.status = { $ne: 'completed' };
+      filter.dueDate = { $lt: new Date() };
+    } else if (status) {
+      filter.status = status;
+    }
     if (priority) filter.priority = priority;
     if (assignee) filter.assignee = assignee;
     if (projectId) filter.project = projectId;

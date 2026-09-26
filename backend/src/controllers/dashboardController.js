@@ -137,17 +137,38 @@ const getDashboard = async (req, res) => {
       ]);
     }
 
-    // Recent overdue tasks (top 5)
-    const recentOverdue = await Task.find({
-      ...taskFilter,
-      status: { $ne: 'completed' },
-      dueDate: { $lt: now },
-    })
-      .populate('assignee', 'name email')
-      .populate('project', 'name')
-      .sort({ dueDate: 1 })
-      .limit(5)
-      .lean();
+    // Fetch quick lists for dashboard drill-down
+    const [allProjectsList, activeProjectsList, pendingTasksList, overdueTasksList] = await Promise.all([
+      Project.find(projectFilter)
+        .populate('manager', 'name email')
+        .sort({ createdAt: -1 })
+        .limit(15)
+        .lean(),
+      Project.find({ ...projectFilter, status: 'active' })
+        .populate('manager', 'name email')
+        .sort({ deadline: 1 })
+        .limit(15)
+        .lean(),
+      Task.find({
+        ...taskFilter,
+        status: { $in: ['todo', 'in_progress', 'review'] },
+      })
+        .populate('assignee', 'name email')
+        .populate('project', 'name')
+        .sort({ dueDate: 1 })
+        .limit(15)
+        .lean(),
+      Task.find({
+        ...taskFilter,
+        status: { $ne: 'completed' },
+        dueDate: { $lt: now },
+      })
+        .populate('assignee', 'name email')
+        .populate('project', 'name')
+        .sort({ dueDate: 1 })
+        .limit(15)
+        .lean(),
+    ]);
 
     res.json({
       projects: {
@@ -165,7 +186,13 @@ const getDashboard = async (req, res) => {
       priorityDistribution,
       employeeWorkload,
       projectProgress,
-      recentOverdue,
+      recentOverdue: overdueTasksList.slice(0, 5),
+      drilldown: {
+        totalProjects: allProjectsList,
+        activeProjects: activeProjectsList,
+        pendingTasks: pendingTasksList,
+        overdueTasks: overdueTasksList,
+      },
     });
   } catch (err) {
     console.error('Dashboard error:', err);

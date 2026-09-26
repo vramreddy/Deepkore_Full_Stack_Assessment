@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatStatus, getStatusColor } from '../utils/helpers';
 import Pagination from '../components/common/Pagination';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import toast from 'react-hot-toast';
-import { FiPlus, FiSearch, FiFilter, FiTrash2, FiEdit2, FiFolder, FiCheckSquare, FiLayers, FiAlertCircle } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiFilter, FiTrash2, FiEdit2, FiFolder, FiCheckSquare, FiLayers, FiAlertCircle, FiX } from 'react-icons/fi';
 
 function ProjectsPage() {
   const { canManage } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [projects, setProjects] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,16 +18,27 @@ function ProjectsPage() {
   const [editingProject, setEditingProject] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
 
-  // Filters
+  // Filters initialized from URL search params if present
   const [filters, setFilters] = useState({
-    search: '',
-    status: '',
+    search: searchParams.get('search') || '',
+    status: searchParams.get('status') || '',
     deadlineBefore: '',
     deadlineAfter: '',
     page: 1,
     sortBy: 'createdAt',
     order: 'desc',
   });
+
+  useEffect(() => {
+    const urlStatus = searchParams.get('status');
+    const urlSearch = searchParams.get('search');
+    setFilters((prev) => ({
+      ...prev,
+      status: urlStatus !== null ? urlStatus : prev.status,
+      search: urlSearch !== null ? urlSearch : prev.search,
+      page: 1,
+    }));
+  }, [searchParams]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -306,7 +318,8 @@ function ProjectsPage() {
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() =>
+              onClick={() => {
+                setSearchParams({});
                 setFilters({
                   search: '',
                   status: '',
@@ -315,8 +328,8 @@ function ProjectsPage() {
                   page: 1,
                   sortBy: 'createdAt',
                   order: 'desc',
-                })
-              }
+                });
+              }}
               style={{ fontSize: '0.825rem', padding: '0.4rem 0.75rem' }}
             >
               Clear
@@ -324,6 +337,28 @@ function ProjectsPage() {
           )}
         </div>
       </div>
+
+      {/* Active Filter Indicator */}
+      {filters.status && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.25)', borderRadius: '8px', padding: '0.65rem 1rem', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem' }}>
+            <span style={{ color: 'var(--text-muted)' }}>Showing Status:</span>
+            <span className={`badge ${getStatusColor(filters.status)}`}>{formatStatus(filters.status)}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>({pagination?.total ?? projects.length} project{pagination?.total !== 1 ? 's' : ''} found)</span>
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => {
+              setSearchParams({});
+              setFilters(prev => ({ ...prev, status: '', page: 1 }));
+            }}
+            style={{ fontSize: '0.8rem', padding: '0.25rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+          >
+            <FiX size={14} /> Show All Projects
+          </button>
+        </div>
+      )}
 
       {/* Projects List */}
       {loading ? (

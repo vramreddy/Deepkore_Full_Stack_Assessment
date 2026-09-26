@@ -71,17 +71,34 @@ function AdminSidebar({ isOpen, onClose }) {
       </div>
 
       <div className="admin-sidebar-section">
-        <span className="sidebar-section-heading">ENVIRONMENT</span>
-        <div className="admin-system-info-card">
-          <div className="info-row">
-            <FiDatabase size={14} className="info-icon" />
-            <span>MongoDB Data Store</span>
-            <span className="info-badge green">Healthy</span>
+        <span className="sidebar-section-heading">ENVIRONMENT & ARCHITECTURE</span>
+        <div className="admin-system-info-container">
+          <div className="system-status-block">
+            <div className="status-block-header">
+              <FiDatabase className="status-block-icon green" />
+              <span className="status-block-label">MongoDB Data Store</span>
+            </div>
+            <div className="status-block-footer">
+              <span className="status-block-sub">Document Database</span>
+              <span className="status-pill green">
+                <span className="status-dot green"></span>
+                Healthy
+              </span>
+            </div>
           </div>
-          <div className="info-row">
-            <FiLock size={14} className="info-icon" />
-            <span>Role-Based Access</span>
-            <span className="info-badge blue">Strict</span>
+
+          <div className="system-status-block">
+            <div className="status-block-header">
+              <FiLock className="status-block-icon blue" />
+              <span className="status-block-label">Role-Based Access</span>
+            </div>
+            <div className="status-block-footer">
+              <span className="status-block-sub">RBAC Protection</span>
+              <span className="status-pill blue">
+                <span className="status-dot blue"></span>
+                Strict
+              </span>
+            </div>
           </div>
         </div>
       </div>

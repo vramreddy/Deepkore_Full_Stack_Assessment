@@ -296,33 +296,39 @@ npm run seed
 ```
 
 This creates sample users, projects, and tasks. Test accounts:
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@deepkore.com | admin123 |
-| Manager | rahul@deepkore.com | manager123 |
-| Manager | priya@deepkore.com | manager123 |
-| Employee | amit@deepkore.com | employee123 |
-| Employee | sneha@deepkore.com | employee123 |
-| Employee | vikram@deepkore.com | employee123 |
+| Role | Email | Password | Admin Clearance Key |
+|------|-------|----------|---------------------|
+| Admin | admin@smartops.com | admin123 | `DEEPKORE-ADMIN-2026` |
+| Manager | rahul@smartops.com | manager123 | N/A |
+| Manager | priya@smartops.com | manager123 | N/A |
+| Employee | amit@smartops.com | employee123 | N/A |
+| Employee | sneha@smartops.com | employee123 | N/A |
+| Employee | vikram@smartops.com | employee123 | N/A |
 
 ### 5. Run the Application
 ```bash
 # Option A: From root directory
 npm run dev:backend    # Starts backend on http://localhost:5000
-npm run dev:frontend   # Starts frontend on http://localhost:5173
+npm run dev:frontend   # Starts operations portal on http://localhost:5173
+npm run dev:admin      # Starts executive admin console on http://localhost:5174
 
 # Option B: From individual folders
 # Terminal 1 - Backend
 cd backend
 npm run dev
 
-# Terminal 2 - Frontend
+# Terminal 2 - Operations Portal
 cd frontend
+npm run dev
+
+# Terminal 3 - Executive Admin Console
+cd admin
 npm run dev
 ```
 
-- Frontend: http://localhost:5173
-- Backend: http://localhost:5000
+- Operations Portal: http://localhost:5173
+- Executive Admin Console: http://localhost:5174
+- Backend API: http://localhost:5000
 
 ---
 

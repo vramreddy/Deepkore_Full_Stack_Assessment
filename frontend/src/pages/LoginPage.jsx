@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { FiMail, FiLock, FiCheck, FiX } from 'react-icons/fi';
+import { FiMail, FiLock, FiX } from 'react-icons/fi';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -16,6 +16,17 @@ function LoginPage() {
 
   const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  // Close modal when pressing Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showGoogleModal) {
+        setShowGoogleModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showGoogleModal]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,9 +50,9 @@ function LoginPage() {
   };
 
   const handleGoogleSignIn = async (selectedEmail, selectedName, selectedRole) => {
-    const targetEmail = selectedEmail || googleEmail;
-    const targetName = selectedName || googleName || targetEmail.split('@')[0];
-    const targetRole = selectedRole || googleRole;
+    const targetEmail = (selectedEmail || googleEmail || '').trim().toLowerCase();
+    const targetName = (selectedName || googleName || targetEmail.split('@')[0] || '').trim();
+    const targetRole = selectedRole || googleRole || 'employee';
 
     if (!targetEmail || !targetEmail.includes('@')) {
       toast.error('Please enter a valid Google email address');
@@ -183,10 +194,18 @@ function LoginPage() {
         </div>
       </div>
 
-      {/* Google Sign-In Interactive Modal */}
+      {/* Google Sign-In Interactive Modal Overlay */}
       {showGoogleModal && (
-        <div className="modal-backdrop">
-          <div className="modal-content google-modal">
+        <div
+          className="modal-overlay"
+          onClick={() => setShowGoogleModal(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="modal-content google-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
               <div className="google-modal-title">
                 <svg className="google-svg" viewBox="0 0 24 24" width="22" height="22">
@@ -210,6 +229,7 @@ function LoginPage() {
                 <h3>Sign in with Google Mail</h3>
               </div>
               <button
+                type="button"
                 className="modal-close"
                 onClick={() => setShowGoogleModal(false)}
                 title="Close"
@@ -219,44 +239,62 @@ function LoginPage() {
             </div>
 
             <p className="google-modal-desc">
-              Choose an account to continue to <strong>SmartOps Management</strong>:
+              Choose an active Google account to enter <strong>Deepkore SmartOps</strong>:
             </p>
 
-            {/* Quick Google Profiles */}
+            {/* Quick Google Profiles linked to seeded database accounts */}
             <div className="google-account-list">
               <button
                 type="button"
                 className="google-account-item"
+                disabled={googleLoading}
                 onClick={() =>
-                  handleGoogleSignIn('manager.deepkore@gmail.com', 'Sarah Patel (Manager)', 'manager')
+                  handleGoogleSignIn('rahul.sharma@gmail.com', 'Rahul Sharma', 'manager')
                 }
               >
-                <div className="google-avatar google-avatar-blue">S</div>
+                <div className="google-avatar google-avatar-blue">R</div>
                 <div className="google-account-info">
-                  <span className="google-account-name">Sarah Patel (Manager)</span>
-                  <span className="google-account-email">manager.deepkore@gmail.com</span>
+                  <span className="google-account-name">Rahul Sharma (Operations Lead)</span>
+                  <span className="google-account-email">rahul.sharma@gmail.com / rahul@smartops.com</span>
                 </div>
-                <span className="badge badge-high">MANAGER</span>
+                <span className="badge-manager">MANAGER</span>
               </button>
 
               <button
                 type="button"
                 className="google-account-item"
+                disabled={googleLoading}
                 onClick={() =>
-                  handleGoogleSignIn('employee.deepkore@gmail.com', 'David Kumar (Staff)', 'employee')
+                  handleGoogleSignIn('amit.kumar@gmail.com', 'Amit Kumar', 'employee')
                 }
               >
-                <div className="google-avatar google-avatar-green">D</div>
+                <div className="google-avatar google-avatar-green">A</div>
                 <div className="google-account-info">
-                  <span className="google-account-name">David Kumar (Staff)</span>
-                  <span className="google-account-email">employee.deepkore@gmail.com</span>
+                  <span className="google-account-name">Amit Kumar (Full-Stack Engineer)</span>
+                  <span className="google-account-email">amit.kumar@gmail.com / amit@smartops.com</span>
                 </div>
-                <span className="badge badge-success">EMPLOYEE</span>
+                <span className="badge-employee">EMPLOYEE</span>
+              </button>
+
+              <button
+                type="button"
+                className="google-account-item"
+                disabled={googleLoading}
+                onClick={() =>
+                  handleGoogleSignIn('priya.patel@gmail.com', 'Priya Patel', 'manager')
+                }
+              >
+                <div className="google-avatar google-avatar-purple">P</div>
+                <div className="google-account-info">
+                  <span className="google-account-name">Priya Patel (Project Manager)</span>
+                  <span className="google-account-email">priya.patel@gmail.com / priya@smartops.com</span>
+                </div>
+                <span className="badge-manager">MANAGER</span>
               </button>
             </div>
 
             <div className="auth-divider">
-              <span>or enter your Google Email</span>
+              <span>or enter custom Google Mail</span>
             </div>
 
             <form
@@ -267,8 +305,9 @@ function LoginPage() {
               className="google-custom-form"
             >
               <div className="form-group">
-                <label>Your Google Mail Address</label>
+                <label htmlFor="google-email-input">Google Email Address</label>
                 <input
+                  id="google-email-input"
                   type="email"
                   placeholder="yourname@gmail.com"
                   value={googleEmail}
@@ -278,8 +317,9 @@ function LoginPage() {
               </div>
 
               <div className="form-group">
-                <label>Full Name</label>
+                <label htmlFor="google-name-input">Full Name (Optional)</label>
                 <input
+                  id="google-name-input"
                   type="text"
                   placeholder="Your Full Name"
                   value={googleName}
@@ -288,18 +328,19 @@ function LoginPage() {
               </div>
 
               <div className="form-group">
-                <label>Default Role</label>
+                <label htmlFor="google-role-select">Access Level</label>
                 <select
+                  id="google-role-select"
                   value={googleRole}
                   onChange={(e) => setGoogleRole(e.target.value)}
                   className="filter-select"
                 >
-                  <option value="employee">Employee</option>
-                  <option value="manager">Manager</option>
+                  <option value="employee">Employee (Operational Staff)</option>
+                  <option value="manager">Manager (Project Lead)</option>
                 </select>
               </div>
 
-              <div className="modal-actions">
+              <div className="modal-actions" style={{ marginTop: '0.5rem' }}>
                 <button
                   type="button"
                   className="btn btn-secondary"
