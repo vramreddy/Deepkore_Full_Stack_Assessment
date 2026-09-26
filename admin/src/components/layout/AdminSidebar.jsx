@@ -7,17 +7,35 @@ import {
   FiExternalLink,
   FiDatabase,
   FiLock,
+  FiX,
 } from 'react-icons/fi';
 
-function AdminSidebar() {
+function AdminSidebar({ isOpen, onClose }) {
   return (
-    <aside className="admin-sidebar">
+    <aside className={`admin-sidebar ${isOpen ? 'open' : ''}`}>
+      {/* Mobile-only header inside drawer */}
+      <div className="admin-sidebar-mobile-header">
+        <div className="admin-brand-mini">
+          <img src="/deepkore-icon.png" alt="Deepkore" className="admin-brand-logo" />
+          <span className="admin-brand-title">Deepkore <span>Admin</span></span>
+        </div>
+        <button
+          type="button"
+          className="admin-sidebar-close-btn"
+          onClick={onClose}
+          aria-label="Close navigation sidebar"
+        >
+          <FiX size={20} />
+        </button>
+      </div>
+
       <div className="admin-sidebar-section">
         <span className="sidebar-section-heading">GOVERNANCE & CONTROL</span>
         <nav className="admin-nav-list">
           <NavLink
             to="/dashboard"
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            onClick={onClose}
           >
             <FiGrid className="nav-icon" />
             <span>Admin Overview</span>
@@ -26,6 +44,7 @@ function AdminSidebar() {
           <NavLink
             to="/users"
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            onClick={onClose}
           >
             <FiUsers className="nav-icon" />
             <span>User Management</span>
@@ -34,6 +53,7 @@ function AdminSidebar() {
           <NavLink
             to="/projects"
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            onClick={onClose}
           >
             <FiFolder className="nav-icon" />
             <span>Projects Oversight</span>
@@ -42,6 +62,7 @@ function AdminSidebar() {
           <NavLink
             to="/audit"
             className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            onClick={onClose}
           >
             <FiFileText className="nav-icon" />
             <span>Global Audit Logs</span>

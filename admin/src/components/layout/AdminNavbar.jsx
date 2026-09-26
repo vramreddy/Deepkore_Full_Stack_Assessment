@@ -1,15 +1,31 @@
 import { useAdminAuth } from '../../context/AdminAuthContext';
-import { FiLogOut, FiExternalLink, FiShield, FiActivity, FiServer } from 'react-icons/fi';
+import { FiLogOut, FiExternalLink, FiMenu, FiX } from 'react-icons/fi';
 
-function AdminNavbar() {
+function AdminNavbar({ sidebarOpen, onToggleSidebar }) {
   const { user, logout } = useAdminAuth();
 
   return (
     <header className="admin-navbar">
       <div className="admin-navbar-left">
+        {/* Mobile Hamburger Drawer Toggle Button */}
+        <button
+          type="button"
+          className="admin-mobile-toggle"
+          onClick={onToggleSidebar}
+          aria-label={sidebarOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+          title="Toggle Navigation Menu"
+        >
+          {sidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+        </button>
+
         <div className="admin-brand">
-          <img src="/deepkore-icon.png" alt="Deepkore" className="admin-brand-logo" style={{ width: '36px', height: '36px', borderRadius: '10px' }} />
-          <div>
+          <img
+            src="/deepkore-icon.png"
+            alt="Deepkore"
+            className="admin-brand-logo"
+            style={{ width: '36px', height: '36px', borderRadius: '10px' }}
+          />
+          <div className="admin-brand-text">
             <h1 className="admin-brand-title">Deepkore <span>Admin</span></h1>
             <span className="admin-brand-sub">Executive Operations &amp; Governance</span>
           </div>
@@ -17,7 +33,7 @@ function AdminNavbar() {
 
         <div className="admin-system-status">
           <span className="status-indicator-dot online"></span>
-          <span className="status-text">Production Cluster: Online</span>
+          <span className="status-text">Production: Online</span>
         </div>
       </div>
 
@@ -28,9 +44,9 @@ function AdminNavbar() {
           target="_blank"
           rel="noopener noreferrer"
           className="admin-portal-link"
-          title="Open Employee & Manager Operations Portal"
+          title="Open Employee & Manager Operations Portal (Port 5173)"
         >
-          <span>Operations Portal</span>
+          <span className="portal-text">Operations Portal</span>
           <FiExternalLink size={14} />
         </a>
 
@@ -46,7 +62,7 @@ function AdminNavbar() {
 
         <button onClick={logout} className="admin-logout-btn" title="Sign Out">
           <FiLogOut size={16} />
-          <span>Logout</span>
+          <span className="logout-text">Logout</span>
         </button>
       </div>
     </header>
