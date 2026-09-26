@@ -79,12 +79,12 @@ function LoginPage() {
             <img src="/deepkore-icon.png" alt="Deepkore" className="auth-logo-icon" />
             Deepkore
           </h1>
-          <p className="auth-subtitle">AI-Driven Business Operations &amp; Management</p>
+          <p className="auth-subtitle">Business Operations &amp; Management</p>
         </div>
 
         <div className="auth-card">
-          <h2>Welcome Back</h2>
-          <p className="auth-description">Sign in to your role-based portal</p>
+          <h2>Welcome </h2>
+          <p className="auth-description">Sign in to your role based portal</p>
 
           {/* Direct Google Login Button */}
           <button

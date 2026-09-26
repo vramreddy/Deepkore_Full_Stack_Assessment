@@ -8,6 +8,7 @@ const {
   getAllTasks,
   addWorklog,
   getTimesheetSummary,
+  getTimesheetMembers,
 } = require('../controllers/taskController');
 const { authenticate, authorize } = require('../middleware/auth');
 const { updateTaskRules, commentRules } = require('../validators/task');
@@ -16,8 +17,9 @@ const validate = require('../middleware/validate');
 // All task routes require authentication
 router.use(authenticate);
 
-// Timesheet summary (must be before :id)
+// Timesheet summary and member endpoints (must be before :id)
 router.get('/timesheet/summary', getTimesheetSummary);
+router.get('/timesheet/members', getTimesheetMembers);
 
 // Get all tasks across projects (for dashboard views)
 router.get('/all', getAllTasks);

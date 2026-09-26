@@ -11,6 +11,8 @@ import {
   FiTrendingUp,
   FiLayers,
   FiBriefcase,
+  FiUser,
+  FiUsers,
   FiX,
 } from 'react-icons/fi';
 
@@ -18,31 +20,39 @@ function TimesheetPage() {
   const { user } = useAuth();
   const [summary, setSummary] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [selectedMember, setSelectedMember] = useState(user?.id || '');
   const [loading, setLoading] = useState(true);
   const [showLogModal, setShowLogModal] = useState(false);
 
   // Log Form State
   const [selectedTask, setSelectedTask] = useState('');
+  const [logForMember, setLogForMember] = useState(user?.id || '');
   const [hours, setHours] = useState('2.0');
   const [notes, setNotes] = useState('');
   const [logDate, setLogDate] = useState(new Date().toISOString().split('T')[0]);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchTimesheet = async () => {
+  const fetchTimesheet = async (memberId = selectedMember) => {
     setLoading(true);
     try {
-      const [sheetRes, tasksRes] = await Promise.all([
-        api.get('/tasks/timesheet/summary'),
+      const targetId = memberId || user.id;
+      const [sheetRes, tasksRes, membersRes] = await Promise.all([
+        api.get(`/tasks/timesheet/summary?userId=${targetId}`),
         api.get('/tasks/all?limit=50&status=in_progress,todo,review'),
+        api.get('/tasks/timesheet/members').catch(() => ({ data: { members: [] } })),
       ]);
 
       setSummary(sheetRes.data);
-      // Filter tasks assigned to this user (or all if manager/admin)
+      const membersList = membersRes.data?.members || [];
+      setTeamMembers(membersList);
+
+      // Filter tasks assigned to target member (or all if manager/admin)
+      const isElevated = user.role === 'admin' || user.role === 'manager';
       const userTasks = (tasksRes.data.tasks || []).filter(
         (t) =>
-          user.role === 'admin' ||
-          user.role === 'manager' ||
-          (t.assignee && (t.assignee._id === user.id || t.assignee === user.id))
+          isElevated ||
+          (t.assignee && (t.assignee._id === targetId || t.assignee === targetId))
       );
       setTasks(userTasks);
       if (userTasks.length > 0 && !selectedTask) {
@@ -56,8 +66,14 @@ function TimesheetPage() {
   };
 
   useEffect(() => {
-    fetchTimesheet();
-  }, []);
+    fetchTimesheet(user?.id);
+  }, [user?.id]);
+
+  const handleMemberChange = (newMemberId) => {
+    setSelectedMember(newMemberId);
+    setLogForMember(newMemberId);
+    fetchTimesheet(newMemberId);
+  };
 
   const handleLogSubmit = async (e) => {
     e.preventDefault();
@@ -68,16 +84,17 @@ function TimesheetPage() {
 
     setSubmitting(true);
     try {
-      await api.post(`/tasks/${selectedTask}/worklogs`, {
+      const res = await api.post(`/tasks/${selectedTask}/worklogs`, {
         hours: parseFloat(hours),
         notes,
         date: logDate,
+        userId: logForMember || selectedMember || user.id,
       });
 
-      toast.success(`Logged ${hours} hours successfully!`);
+      toast.success(res.data?.message || `Logged ${hours} hours successfully!`);
       setShowLogModal(false);
       setNotes('');
-      fetchTimesheet();
+      fetchTimesheet(selectedMember);
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to log hours';
       toast.error(msg);
@@ -106,9 +123,9 @@ function TimesheetPage() {
       <div className="page-header">
         <div>
           <div className="panel-badge-top portal-badge-manager">
-            <FiClock className="badge-icon" /> Workday Time & Attendance
+            <FiClock className="badge-icon" /> Workday Time &amp; Attendance
           </div>
-          <h1>My Time & Weekly Timesheet</h1>
+          <h1>My Time &amp; Weekly Timesheet</h1>
           <p className="page-subtitle">
             Enterprise workload logging, capacity tracking, and project task hours allocation.
           </p>
@@ -116,6 +133,51 @@ function TimesheetPage() {
         <button className="btn btn-primary" onClick={() => setShowLogModal(true)}>
           <FiPlus /> Log Task Hours
         </button>
+      </div>
+
+      {/* Team Member Switcher Bar */}
+      <div className="card timesheet-member-bar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem', borderLeft: '4px solid var(--primary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          <div className="stat-icon stat-icon-primary" style={{ width: '40px', height: '40px', borderRadius: '10px', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <FiUsers />
+          </div>
+          <div>
+            <strong style={{ display: 'block', fontSize: '1rem' }}>Active Timesheet Member</strong>
+            <span className="text-secondary text-sm">
+              Viewing hours for: <strong style={{ color: '#248aff' }}>{summary?.targetUser?.name || user?.name}</strong> ({summary?.targetUser?.role?.toUpperCase() || user?.role?.toUpperCase()})
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <label style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Select Employee:</label>
+          <select
+            value={selectedMember}
+            onChange={(e) => handleMemberChange(e.target.value)}
+            className="filter-select"
+            style={{ minWidth: '220px', padding: '0.55rem 0.85rem' }}
+          >
+            <option value={user.id}>{user.name} (Myself)</option>
+            {teamMembers
+              .filter((m) => m._id !== user.id)
+              .map((m) => (
+                <option key={m._id} value={m._id}>
+                  {m.name} — {m.role?.toUpperCase()}
+                </option>
+              ))}
+          </select>
+
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => {
+              setLogForMember(selectedMember);
+              setShowLogModal(true);
+            }}
+            title="Add timesheet entry for this employee"
+          >
+            <FiPlus /> Add Hours for {summary?.targetUser?.name?.split(' ')[0] || 'Employee'}
+          </button>
+        </div>
       </div>
 
       {/* Capacity & Timesheet KPI Cards */}
@@ -167,7 +229,7 @@ function TimesheetPage() {
           <div>
             <h3>Weekly Hours Allocation</h3>
             <span className="text-secondary text-sm">
-              Standard 40-hour schedule for {user?.name} ({user?.role?.toUpperCase()})
+              Standard 40-hour schedule for {summary?.targetUser?.name || user?.name} ({summary?.targetUser?.role?.toUpperCase() || user?.role?.toUpperCase()})
             </span>
           </div>
           <div className="capacity-status-chip">
@@ -220,9 +282,11 @@ function TimesheetPage() {
         <div className="card-header">
           <div>
             <h3>Timesheet Worklogs</h3>
-            <span className="text-secondary text-sm">Detailed hours logged on assigned projects</span>
+            <span className="text-secondary text-sm">
+              Detailed hours logged for {summary?.targetUser?.name || user?.name} on assigned projects
+            </span>
           </div>
-          <button className="btn btn-sm btn-secondary" onClick={fetchTimesheet}>
+          <button className="btn btn-sm btn-secondary" onClick={() => fetchTimesheet(selectedMember)}>
             Refresh Logs
           </button>
         </div>
@@ -232,6 +296,7 @@ function TimesheetPage() {
             <thead>
               <tr>
                 <th>Date</th>
+                <th>Employee</th>
                 <th>Task Name</th>
                 <th>Project</th>
                 <th>Hours</th>
@@ -241,14 +306,21 @@ function TimesheetPage() {
             <tbody>
               {!summary?.recentLogs || summary.recentLogs.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="table-empty">
-                    No hours logged yet this week. Click "Log Task Hours" above to record your time!
+                  <td colSpan="6" className="table-empty">
+                    No hours logged yet this week for {summary?.targetUser?.name || 'this member'}. Click "Log Task Hours" above to record time!
                   </td>
                 </tr>
               ) : (
                 summary.recentLogs.map((log, index) => (
                   <tr key={index}>
-                    <td className="text-muted text-sm">{formatDate(log.date)}</td>
+                    <td>
+                      <span className="table-date">{formatDate(log.date)}</span>
+                    </td>
+                    <td>
+                      <span className="badge badge-info" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <FiUser size={12} /> {log.loggedBy || summary?.targetUser?.name || user?.name}
+                      </span>
+                    </td>
                     <td>
                       <strong>{log.taskTitle}</strong>
                     </td>
@@ -285,6 +357,24 @@ function TimesheetPage() {
             </div>
 
             <form onSubmit={handleLogSubmit} className="modal-form">
+              <div className="form-group">
+                <label>Employee / Timesheet Contributor *</label>
+                <select
+                  value={logForMember}
+                  onChange={(e) => setLogForMember(e.target.value)}
+                  required
+                  className="filter-select"
+                >
+                  <option value={user.id}>{user.name} (Myself)</option>
+                  {teamMembers
+                    .filter((m) => m._id !== user.id)
+                    .map((m) => (
+                      <option key={m._id} value={m._id}>
+                        {m.name} — {m.role?.toUpperCase()}
+                      </option>
+                    ))}
+                </select>
+              </div>
               <div className="form-group">
                 <label>Select Project Task *</label>
                 {tasks.length === 0 ? (
