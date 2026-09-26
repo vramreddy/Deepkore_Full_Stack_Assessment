@@ -55,24 +55,11 @@ function DashboardPage() {
   return (
     <div className="dashboard-page">
       <div className="page-header">
-        <h1>{user?.role === 'admin' ? 'System Overview' : user?.role === 'manager' ? 'Operations Dashboard' : 'Employee Workstation'}</h1>
+        <h1>{user?.role === 'manager' ? 'Operations Dashboard' : 'Employee Workstation'}</h1>
         <p className="page-description">Welcome back, {user?.name}!</p>
       </div>
 
       {/* Role-Specific Portal Banner */}
-      {user?.role === 'admin' && (
-        <div className="role-portal-banner banner-admin">
-          <div className="banner-left">
-            <span className="banner-badge">ADMINISTRATOR CONSOLE</span>
-            <h3>Enterprise Governance & Role Management</h3>
-            <p>You have root-level authorization. Configure user roles, supervise projects, and review sensitive audit logs.</p>
-          </div>
-          <Link to="/admin" className="btn btn-primary banner-action-btn">
-            Open Admin Panel →
-          </Link>
-        </div>
-      )}
-
       {user?.role === 'manager' && (
         <div className="role-portal-banner banner-manager">
           <div className="banner-left">
@@ -215,7 +202,7 @@ function DashboardPage() {
           )}
         </div>
 
-        {/* Employee Workload (Manager/Admin only) */}
+        {/* Employee Workload (Manager only) */}
         {canManage && data.employeeWorkload.length > 0 && (
           <div className="dashboard-card">
             <h3 className="card-title">

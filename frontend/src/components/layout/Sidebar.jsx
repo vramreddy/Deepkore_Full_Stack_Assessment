@@ -8,7 +8,6 @@ import {
   FiLogOut,
   FiMenu,
   FiX,
-  FiShield,
   FiBriefcase,
   FiUser,
   FiClock,
@@ -16,7 +15,7 @@ import {
 import { useState } from 'react';
 
 function Sidebar() {
-  const { user, logout, isAdmin, isManager, isEmployee } = useAuth();
+  const { user, logout, isManager, isEmployee } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -26,13 +25,10 @@ function Sidebar() {
   };
 
   const navItems = [
-    ...(isAdmin
-      ? [{ to: '/admin', icon: <FiShield />, label: 'Admin Control Panel', highlight: true }]
-      : []),
     {
       to: '/dashboard',
       icon: <FiHome />,
-      label: isAdmin ? 'System Dashboard' : isManager ? 'Operations Dashboard' : 'My Workspace',
+      label: isManager ? 'Operations Dashboard' : 'My Workspace',
     },
     {
       to: '/projects',
@@ -57,13 +53,6 @@ function Sidebar() {
   ];
 
   const getPortalInfo = () => {
-    if (isAdmin) {
-      return {
-        icon: <FiShield />,
-        title: 'Admin Control Panel',
-        colorClass: 'portal-badge-admin',
-      };
-    }
     if (isManager) {
       return {
         icon: <FiBriefcase />,
@@ -108,13 +97,12 @@ function Sidebar() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `sidebar-link ${isActive ? 'active' : ''} ${item.highlight ? 'sidebar-link-highlight' : ''}`
+                `sidebar-link ${isActive ? 'active' : ''}`
               }
               onClick={() => setMobileOpen(false)}
             >
               <span className="sidebar-icon">{item.icon}</span>
               <span className="sidebar-label">{item.label}</span>
-              {item.highlight && <span className="sidebar-pill-badge">ADMIN</span>}
             </NavLink>
           ))}
         </nav>

@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import { FiPlus, FiSearch, FiFilter, FiTrash2, FiEdit2, FiFolder, FiCheckSquare, FiLayers, FiAlertCircle } from 'react-icons/fi';
 
 function ProjectsPage() {
-  const { canManage, isAdmin } = useAuth();
+  const { canManage } = useAuth();
   const [projects, setProjects] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -381,18 +381,6 @@ function ProjectsPage() {
                     >
                       <FiEdit2 />
                     </button>
-                    {isAdmin && (
-                      <button
-                        className="btn-icon btn-icon-danger"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setDeleteId(project._id);
-                        }}
-                        title="Delete"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    )}
                   </div>
                 )}
               </Link>

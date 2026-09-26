@@ -182,7 +182,6 @@ function RegisterPage() {
               <select id="role" name="role" value={formData.role} onChange={handleChange}>
                 <option value="employee">Employee (Operational Staff)</option>
                 <option value="manager">Manager (Project Lead)</option>
-                <option value="admin">Administrator (System Owner)</option>
               </select>
             </div>
 

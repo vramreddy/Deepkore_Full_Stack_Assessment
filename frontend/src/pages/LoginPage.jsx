@@ -124,13 +124,6 @@ function LoginPage() {
             <div className="demo-chips">
               <button
                 type="button"
-                className="demo-chip chip-admin"
-                onClick={() => fillCredentials('admin@smartops.com', 'admin123')}
-              >
-                Admin
-              </button>
-              <button
-                type="button"
                 className="demo-chip chip-manager"
                 onClick={() => fillCredentials('rahul@smartops.com', 'manager123')}
               >
@@ -186,6 +179,18 @@ function LoginPage() {
             <p className="auth-switch">
               Don't have an account? <Link to="/register">Create an account</Link>
             </p>
+
+            <div className="admin-portal-link-card">
+              <span className="admin-portal-link-label">System Administrator?</span>
+              <a
+                href="http://localhost:5174"
+                target="_blank"
+                rel="noreferrer"
+                className="admin-portal-link-btn"
+              >
+                Access Admin Command Center (Port 5174) →
+              </a>
+            </div>
           </form>
         </div>
       </div>
@@ -231,21 +236,6 @@ function LoginPage() {
 
             {/* Quick Google Profiles */}
             <div className="google-account-list">
-              <button
-                type="button"
-                className="google-account-item"
-                onClick={() =>
-                  handleGoogleSignIn('admin.deepkore@gmail.com', 'Alex Reddy (Admin)', 'admin')
-                }
-              >
-                <div className="google-avatar google-avatar-purple">A</div>
-                <div className="google-account-info">
-                  <span className="google-account-name">Alex Reddy (Admin)</span>
-                  <span className="google-account-email">admin.deepkore@gmail.com</span>
-                </div>
-                <span className="badge badge-critical">ADMIN</span>
-              </button>
-
               <button
                 type="button"
                 className="google-account-item"
@@ -318,7 +308,6 @@ function LoginPage() {
                 >
                   <option value="employee">Employee</option>
                   <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
                 </select>
               </div>
 

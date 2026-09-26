@@ -11,7 +11,6 @@ import ProjectDetailPage from './pages/ProjectDetailPage';
 import TasksPage from './pages/TasksPage';
 import TaskDetailPage from './pages/TaskDetailPage';
 import ActivitiesPage from './pages/ActivitiesPage';
-import AdminPanelPage from './pages/AdminPanelPage';
 import TimesheetPage from './pages/TimesheetPage';
 
 function App() {
@@ -43,14 +42,6 @@ function App() {
             }
           >
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute roles={['admin']}>
-                  <AdminPanelPage />
-                </ProtectedRoute>
-              }
-            />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/projects/:id" element={<ProjectDetailPage />} />
             <Route path="/tasks" element={<TasksPage />} />

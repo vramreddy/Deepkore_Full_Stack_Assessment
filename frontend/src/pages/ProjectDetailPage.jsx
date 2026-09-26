@@ -10,7 +10,7 @@ import { FiPlus, FiSearch, FiArrowLeft, FiEdit2, FiTrash2, FiCalendar, FiUser, F
 
 function ProjectDetailPage() {
   const { id } = useParams();
-  const { canManage, isAdmin } = useAuth();
+  const { canManage } = useAuth();
 
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
