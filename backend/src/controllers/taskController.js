@@ -1,6 +1,5 @@
 const Task = require('../models/Task');
 const Project = require('../models/Project');
-const User = require('../models/User');
 const logActivity = require('../utils/logActivity');
 
 /**
@@ -508,13 +507,9 @@ const getAllTasks = async (req, res) => {
  * POST /api/tasks/:id/worklogs
  * Log hours worked on a task (Workday / Accenture Timesheet style)
  */
-/**
- * POST /api/tasks/:id/worklogs
- * Log hours worked on a task (Workday / Accenture Timesheet style)
- */
 const addWorklog = async (req, res) => {
   try {
-    const { hours, notes, date, userId } = req.body;
+    const { hours, notes, date } = req.body;
     const numHours = parseFloat(hours);
 
     if (isNaN(numHours) || numHours <= 0 || numHours > 24) {
@@ -526,23 +521,15 @@ const addWorklog = async (req, res) => {
       return res.status(404).json({ message: 'Task not found.' });
     }
 
-    const canManage = req.user.role === 'admin' || req.user.role === 'manager';
     const isAssignee = task.assignee && task.assignee.toString() === req.user._id.toString();
-
-    // Determine target employee for timesheet logging
-    let targetUserId = req.user._id;
-    if (userId && canManage) {
-      targetUserId = userId;
-    }
+    const canManage = req.user.role === 'admin' || req.user.role === 'manager';
 
     if (!isAssignee && !canManage) {
       return res.status(403).json({ message: 'You can only log time on tasks assigned to you.' });
     }
 
-    const targetUser = await User.findById(targetUserId);
-
     task.worklogs.push({
-      user: targetUserId,
+      user: req.user._id,
       hours: numHours,
       notes: notes || '',
       date: date ? new Date(date) : new Date(),
@@ -559,11 +546,11 @@ const addWorklog = async (req, res) => {
       entityId: task._id,
       entityName: task.title,
       projectId: task.project,
-      details: `Logged ${numHours}h for ${targetUser ? targetUser.name : 'Employee'} on "${task.title}": ${notes || 'No description'}`,
+      details: `Logged ${numHours}h on "${task.title}": ${notes || 'No description'}`,
     });
 
     res.status(201).json({
-      message: `${numHours} hours logged successfully for ${targetUser ? targetUser.name : 'Employee'}`,
+      message: `${numHours} hours logged successfully`,
       loggedHours: task.loggedHours,
       worklogs: task.worklogs,
     });
@@ -574,70 +561,23 @@ const addWorklog = async (req, res) => {
 };
 
 /**
- * GET /api/tasks/timesheet/members
- * Get team members eligible for timesheets
- */
-const getTimesheetMembers = async (req, res) => {
-  try {
-    if (req.user.role === 'admin' || req.user.role === 'manager') {
-      const users = await User.find({ role: { $in: ['employee', 'manager', 'admin'] } })
-        .select('name email role')
-        .sort({ name: 1 });
-      return res.json({ members: users });
-    }
-
-    // For employees, find all members in the projects they belong to
-    const myProjects = await Project.find({ teamMembers: req.user._id }).select('teamMembers');
-    const memberIds = new Set();
-    memberIds.add(req.user._id.toString());
-    myProjects.forEach((p) => {
-      (p.teamMembers || []).forEach((m) => memberIds.add(m.toString()));
-    });
-
-    const members = await User.find({ _id: { $in: Array.from(memberIds) } })
-      .select('name email role')
-      .sort({ name: 1 });
-
-    res.json({ members });
-  } catch (err) {
-    console.error('Get timesheet members error:', err);
-    res.status(500).json({ message: 'Server error fetching timesheet members.' });
-  }
-};
-
-/**
  * GET /api/tasks/timesheet/summary
- * Get weekly timesheet summary for current user or selected employee
+ * Get weekly timesheet summary for current user
  */
 const getTimesheetSummary = async (req, res) => {
   try {
-    const { userId } = req.query;
-    let targetUserId = req.user._id;
-
-    if (userId && (req.user.role === 'admin' || req.user.role === 'manager')) {
-      targetUserId = userId;
-    }
-
-    let targetUser = req.user;
-    if (targetUserId.toString() !== req.user._id.toString()) {
-      const foundUser = await User.findById(targetUserId).select('name email role');
-      if (foundUser) targetUser = foundUser;
-    }
-
     const tasks = await Task.find({
-      'worklogs.user': targetUserId,
+      'worklogs.user': req.user._id,
     })
       .select('title project status loggedHours estimatedHours worklogs')
-      .populate('project', 'name')
-      .populate('worklogs.user', 'name email');
+      .populate('project', 'name');
 
     let totalHours = 0;
     const recentLogs = [];
 
     tasks.forEach((t) => {
       (t.worklogs || []).forEach((w) => {
-        const wId = w.user?._id || w.user;
-        if (wId && wId.toString() === targetUserId.toString()) {
+        if (w.user && w.user.toString() === req.user._id.toString()) {
           totalHours += w.hours || 0;
           recentLogs.push({
             taskId: t._id,
@@ -646,7 +586,6 @@ const getTimesheetSummary = async (req, res) => {
             hours: w.hours,
             date: w.date,
             notes: w.notes,
-            loggedBy: w.user?.name || targetUser.name,
           });
         }
       });
@@ -655,16 +594,10 @@ const getTimesheetSummary = async (req, res) => {
     recentLogs.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     res.json({
-      targetUser: {
-        id: targetUser._id,
-        name: targetUser.name,
-        email: targetUser.email,
-        role: targetUser.role,
-      },
       totalHours: Math.round(totalHours * 10) / 10,
       weeklyTarget: 40,
       utilizationRate: Math.min(100, Math.round((totalHours / 40) * 100)),
-      recentLogs: recentLogs.slice(0, 25),
+      recentLogs: recentLogs.slice(0, 15),
     });
   } catch (err) {
     console.error('Timesheet summary error:', err);
@@ -682,5 +615,4 @@ module.exports = {
   getAllTasks,
   addWorklog,
   getTimesheetSummary,
-  getTimesheetMembers,
 };

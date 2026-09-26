@@ -56,9 +56,18 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    const cleanEmail = email ? email.trim().toLowerCase() : '';
 
-    // Find user and include password field
-    const user = await User.findOne({ email }).select('+password');
+    // Find user and include password field (support both @deepkore.com & @smartops.com aliases)
+    let user = await User.findOne({ email: cleanEmail }).select('+password');
+    if (!user && cleanEmail.includes('@deepkore.com')) {
+      const altEmail = cleanEmail.replace('@deepkore.com', '@smartops.com');
+      user = await User.findOne({ email: altEmail }).select('+password');
+    } else if (!user && cleanEmail.includes('@smartops.com')) {
+      const altEmail = cleanEmail.replace('@smartops.com', '@deepkore.com');
+      user = await User.findOne({ email: altEmail }).select('+password');
+    }
+
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password.' });
     }
