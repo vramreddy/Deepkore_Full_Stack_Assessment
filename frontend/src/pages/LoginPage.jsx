@@ -179,18 +179,6 @@ function LoginPage() {
             <p className="auth-switch">
               Don't have an account? <Link to="/register">Create an account</Link>
             </p>
-
-            <div className="admin-portal-link-card">
-              <span className="admin-portal-link-label">System Administrator?</span>
-              <a
-                href="http://localhost:5174"
-                target="_blank"
-                rel="noreferrer"
-                className="admin-portal-link-btn"
-              >
-                Access Admin Command Center (Port 5174) →
-              </a>
-            </div>
           </form>
         </div>
       </div>

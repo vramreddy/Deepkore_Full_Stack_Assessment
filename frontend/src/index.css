@@ -2167,45 +2167,6 @@ h3 {
   color: #34d399;
 }
 
-.admin-portal-link-card {
-  margin-top: 1.25rem;
-  padding: 0.85rem 1rem;
-  background: rgba(239, 68, 68, 0.06);
-  border: 1px dashed rgba(239, 68, 68, 0.35);
-  border-radius: 8px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  transition: all 0.2s ease;
-}
-
-.admin-portal-link-card:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.5);
-}
-
-.admin-portal-link-label {
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #ef4444;
-}
-
-.admin-portal-link-btn {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #f87171;
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-.admin-portal-link-btn:hover {
-  color: #fca5a5;
-  text-decoration: underline;
-}
-
 /* Google Modal */
 .google-modal {
   max-width: 480px;
