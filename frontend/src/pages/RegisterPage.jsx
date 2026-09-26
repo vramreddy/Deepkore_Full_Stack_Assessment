@@ -80,8 +80,11 @@ function RegisterPage() {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-header">
-          <h1 className="auth-logo">SmartOps</h1>
-          <p className="auth-subtitle">Operations Management System</p>
+          <h1 className="auth-logo">
+            <img src="/deepkore-icon.png" alt="Deepkore" className="auth-logo-icon" />
+            Deepkore
+          </h1>
+          <p className="auth-subtitle">AI-Driven Business Operations &amp; Management</p>
         </div>
 
         <div className="auth-card">

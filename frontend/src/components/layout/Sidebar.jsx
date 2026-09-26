@@ -93,7 +93,7 @@ function Sidebar() {
       <aside className={`sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
           <h2 className="sidebar-logo">
-            <img src="/deepkore-logo.jpg" alt="Deepkore" className="sidebar-logo-icon" />
+            <img src="/deepkore-icon.png" alt="Deepkore" className="sidebar-logo-icon" />
             Deepkore
           </h2>
           <div className={`sidebar-portal-badge ${portal.colorClass}`}>

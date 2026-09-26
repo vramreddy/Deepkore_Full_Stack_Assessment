@@ -35,7 +35,7 @@ function AdminLoginPage() {
   };
 
   const handleQuickFill = () => {
-    setEmail('admin@smartops.com');
+    setEmail('admin@deepkore.com');
     setPassword('admin123');
   };
 
@@ -57,12 +57,10 @@ function AdminLoginPage() {
     <div className="admin-login-screen">
       <div className="admin-login-card">
         <div className="admin-login-header">
-          <div className="admin-shield-emblem">
-            <FiShield size={36} />
-          </div>
-          <h2>SmartOps Administration</h2>
+          <img src="/deepkore-icon.png" alt="Deepkore" style={{ width: '56px', height: '56px', borderRadius: '14px', marginBottom: '0.85rem', boxShadow: '0 4px 16px rgba(0,0,0,0.35)' }} />
+          <h2>Deepkore Administration</h2>
           <p className="admin-login-subtitle">
-            Restricted Access • System Operations & Governance Portal
+            Restricted Access • System Operations &amp; Governance Portal
           </p>
         </div>
 
@@ -83,7 +81,7 @@ function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@smartops.com"
+                placeholder="admin@deepkore.com"
                 required
               />
             </div>
@@ -127,7 +125,7 @@ function AdminLoginPage() {
         <div className="admin-quick-fill-box">
           <span className="quick-fill-label">Demo Clearance Profile:</span>
           <button type="button" className="quick-fill-chip" onClick={handleQuickFill}>
-            <strong>admin@smartops.com</strong> (Pre-fill Credentials)
+            <strong>admin@deepkore.com</strong> (Pre-fill Credentials)
           </button>
         </div>
 
@@ -157,7 +155,7 @@ function AdminLoginPage() {
                 className="google-profile-card"
                 onClick={() =>
                   handleGoogleSubmit({
-                    email: 'admin@smartops.com',
+                    email: 'admin@deepkore.com',
                     name: 'System Administrator',
                     googleId: 'google-admin-001',
                     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
@@ -167,7 +165,7 @@ function AdminLoginPage() {
                 <div className="google-profile-avatar">A</div>
                 <div className="google-profile-details">
                   <strong>System Administrator (Super Admin)</strong>
-                  <span>admin@smartops.com</span>
+                  <span>admin@deepkore.com</span>
                 </div>
               </button>
             </div>

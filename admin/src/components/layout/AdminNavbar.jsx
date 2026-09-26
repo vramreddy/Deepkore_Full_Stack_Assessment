@@ -8,12 +8,10 @@ function AdminNavbar() {
     <header className="admin-navbar">
       <div className="admin-navbar-left">
         <div className="admin-brand">
-          <div className="admin-shield-icon">
-            <FiShield size={20} />
-          </div>
+          <img src="/deepkore-icon.png" alt="Deepkore" className="admin-brand-logo" style={{ width: '36px', height: '36px', borderRadius: '10px' }} />
           <div>
-            <h1 className="admin-brand-title">SmartOps <span>Admin</span></h1>
-            <span className="admin-brand-sub">Executive Operations & Governance</span>
+            <h1 className="admin-brand-title">Deepkore <span>Admin</span></h1>
+            <span className="admin-brand-sub">Executive Operations &amp; Governance</span>
           </div>
         </div>
 
